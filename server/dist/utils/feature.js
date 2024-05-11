@@ -1,13 +1,13 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 const connectDB = async (uri) => {
     try {
         const connect = await mongoose.connect(uri, {
-            dbName: "mern-chat",
+            dbName: 'mern-chat',
         });
         console.log(`Connected to DB at ${connect.connection.host}`);
     }
     catch (error) {
-        console.log("Error while connecting with DB", error);
+        console.log('Error while connecting with DB', error);
     }
 };
 export default connectDB;

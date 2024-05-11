@@ -5,7 +5,7 @@ class ErrorHandler extends Error {
   constructor(
     message: string,
     statusCode: number,
-    details: string[] | string | undefined = undefined,
+    details: string[] | string | undefined = undefined
   ) {
     super(message);
     this.statusCode = statusCode;

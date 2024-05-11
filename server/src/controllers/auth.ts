@@ -1,4 +1,4 @@
-import { TryCatch } from "../middlewares/error.js";
+import { TryCatch } from '../middlewares/error.js';
 
 const registerUser = TryCatch(async (req, res, next) => {});
 
