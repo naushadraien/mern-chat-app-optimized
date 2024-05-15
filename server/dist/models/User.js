@@ -1,5 +1,5 @@
-import { Schema, model, models } from 'mongoose';
-import { hash } from 'bcryptjs';
+import mongoose, { Schema } from 'mongoose';
+import bcrypt from 'bcryptjs';
 const userSchema = new Schema({
     name: {
         type: String,
@@ -18,7 +18,7 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: [true, 'Please provide password'],
-        minlength: [8, 'Password should be at least 8 characters'],
+        minlength: [4, 'Password should be at least 8 characters'],
         select: false,
         //   maxlength: [20, "Password should not exceed 20 characters"],
     },
@@ -36,6 +36,6 @@ const userSchema = new Schema({
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password'))
         return next();
-    this.password = await hash(this.password, 10);
+    this.password = await bcrypt.hash(this.password, 10);
 });
-export const User = models.User || model('User', userSchema);
+export const User = mongoose.models.User || mongoose.model('User', userSchema);
