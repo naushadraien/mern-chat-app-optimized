@@ -17,6 +17,8 @@ export interface UserType extends Document {
     public_id: string;
     url: string;
   };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface cookieOptionsType {
@@ -24,4 +26,26 @@ export interface cookieOptionsType {
   maxAge: number;
   secure: boolean;
   sameSite: boolean | 'strict' | 'lax' | 'none' | undefined;
+}
+
+export interface CustomRequestType<T> extends Request {
+  user?: UserType;
+  body: T;
+}
+
+// export interface ErrorDetailsType {
+//   message?: string;
+// }
+
+// const testMap: { [key: number]: string } = {
+//   1: 'Ok',
+// };
+
+export interface ChatType extends Document {
+  name: string;
+  groupChat: boolean;
+  creator: string;
+  members: string[];
+  createdAt: string;
+  updatedAt: string;
 }

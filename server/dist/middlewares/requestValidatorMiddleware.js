@@ -5,10 +5,11 @@ export function validateData(schema) {
         const result = schema.safeParse(req.body);
         if (!result.success) {
             if (result.error instanceof ZodError) {
-                const errorMessages = result.error.errors.map((issue) => issue.message);
+                // const errorMessages = result.error.errors.map((issue) => issue.message);
+                const errorMessages = result.error.errors.map((issue) => `${issue.path.join('')} ${':'} ${issue.message}`);
                 //or
-                // const errorMessages = error.errors.map((issue) => ({
-                //   message: `${issue.path.join(".")} is ${issue.message}`,
+                // const errorMessages = result.error.errors.map((issue) => ({
+                //   message: `${issue.path.join('.')} is ${issue.message}`,
                 // }));
                 // Create a new ErrorHandler with the error messages
                 // const err = new ErrorHandler("Invalid data", 400, errorMessages);

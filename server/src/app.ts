@@ -4,6 +4,7 @@ import 'dotenv/config';
 import chatConfig from './config/index.js';
 import { mainRouter } from './routes/index.js';
 import { errorMiddleware } from './middlewares/error.js';
+import cookieParser from 'cookie-parser';
 
 import connectDB from './utils/feature.js';
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.get('/', (req: Request, res: Response, next: NextFunction) => {
   res.send('Api working on /api/v1');
 });
+app.use(cookieParser());
 mainRouter(app);
 app.use(errorMiddleware);
 app.listen(chatConfig.PORT, () => {

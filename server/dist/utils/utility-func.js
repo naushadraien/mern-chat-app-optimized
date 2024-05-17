@@ -28,7 +28,9 @@ const getErrorMessageAccordingToStatus = (status, message) => {
             return 'An error occurred';
     }
 };
-const errorMessage = (next, message, status, details) => {
+const errorMessage = (next, message, status, details
+// details?: ErrorDetailsType[] | string | string[] | undefined
+) => {
     return next(new ErrorHandler(getErrorMessageAccordingToStatus(status, message), status, details));
 };
 export { errorMessage, successData };

@@ -37,6 +37,7 @@ const errorMessage = (
   message: string,
   status: number,
   details?: string | string[] | undefined
+  // details?: ErrorDetailsType[] | string | string[] | undefined
 ) => {
   return next(new ErrorHandler(getErrorMessageAccordingToStatus(status, message), status, details));
 };
