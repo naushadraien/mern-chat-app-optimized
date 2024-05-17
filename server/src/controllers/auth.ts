@@ -3,6 +3,7 @@ import { TryCatch } from '../middlewares/error.js';
 import { User } from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
 import { errorMessage, successData } from '../utils/utility-func.js';
+import { cookieOptions } from '../utils/cookieOptions.js';
 
 const registerUser = TryCatch(async (req, res, next) => {
   const { name, email, password, bio, avatar } = req.body;
@@ -36,7 +37,21 @@ const loginUser = TryCatch(async (req, res, next) => {
   if (!isPasswordMatch) {
     return errorMessage(next, 'Invalid email or password', 400);
   }
+  generateToken(res, existedUser._id);
   return successData(res, `Welcome back ${existedUser.name}`, existedUser);
 });
 
-export { loginUser, registerUser };
+const logOutUser = TryCatch(async (req, res, next) => {
+  return res
+    .status(200)
+    .cookie('token', '', {
+      ...cookieOptions,
+      maxAge: 0,
+    })
+    .json({
+      success: true,
+      message: 'Logged out successfully',
+    });
+});
+
+export { loginUser, registerUser, logOutUser };

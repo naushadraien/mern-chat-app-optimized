@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { UserType } from '../Types/types.js';
 
@@ -44,4 +44,4 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 10);
 });
 
-export const User = mongoose.models.User || mongoose.model<UserType>('User', userSchema);
+export const User: Model<UserType> = mongoose.models.User || mongoose.model('User', userSchema);
