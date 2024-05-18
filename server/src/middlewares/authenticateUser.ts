@@ -1,7 +1,7 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import chatConfig from '../config/index.js';
-import { TryCatch } from '../middlewares/error.js';
-import { errorMessage } from './utility-func.js';
+import { TryCatch } from './error.js';
+import { errorMessage } from '../utils/utility-func.js';
 import { CustomRequestType, UserType } from '../Types/types.js';
 import { User } from '../models/User.js';
 

@@ -2,6 +2,7 @@ import { ALERT, REFETCH_CHATS } from '../constants/events.js';
 import { TryCatch } from '../middlewares/error.js';
 import { Chat } from '../models/Chat.js';
 import { emitEvent } from '../utils/emitEvents.js';
+import { getOtherMembers } from '../utils/helperfunc.js';
 import { errorMessage, successData } from '../utils/utility-func.js';
 const newGroup = TryCatch(async (req, res, next) => {
     const { name, members } = req.body;
@@ -19,4 +20,49 @@ const newGroup = TryCatch(async (req, res, next) => {
     emitEvent(req, REFETCH_CHATS, members);
     return successData(res, 'Group created successfully', undefined, true);
 });
-export { newGroup };
+const getMyChats = TryCatch(async (req, res, next) => {
+    //this is for showing users or groups in the sidebar for the requested user
+    const chats = await Chat.find({ members: req.user?._id }).populate('members', 'name avatar'); // here populate is used to get only name and avatar of the members of the chat
+    console.log('chats', chats);
+    const transFormedChats = chats.map((chat) => {
+        const otherMembers = getOtherMembers(chat.members, req?.user?._id || '');
+        return {
+            _id: chat._id,
+            name: chat.groupChat ? chat.name : otherMembers.name,
+            avatar: chat.groupChat
+                ? chat.members
+                    .slice(0, 3)
+                    .map((member) => typeof member !== 'string' && member.avatar.url)
+                : [otherMembers.avatar.url],
+            members: chat.members.reduce((prev, curr) => {
+                //prev means previous value that is returned from the previous iteration which is also called as accumulator and curr is the current value that is being processed in the current iteration
+                if (typeof curr === 'string') {
+                    return prev;
+                }
+                if (curr._id.toString() !== req.user?._id.toString()) {
+                    prev.push(curr._id);
+                    return prev;
+                }
+                return prev;
+            }, []),
+        };
+    });
+    return successData(res, '', transFormedChats);
+});
+const getMyGroups = TryCatch(async (req, res, next) => {
+    const chats = await Chat.find({
+        members: req?.user?._id,
+        groupChat: true,
+        creator: req.user?._id,
+    }).populate('members', 'name avatar');
+    const groups = chats.map((chat) => ({
+        name: chat.name,
+        groupChat: chat.groupChat,
+        avatar: chat.members
+            .slice(0, 3)
+            .map((member) => typeof member !== 'string' && member.avatar.url),
+        _id: chat._id,
+    }));
+    return successData(res, '', groups);
+});
+export { newGroup, getMyChats, getMyGroups };

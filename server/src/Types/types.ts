@@ -49,3 +49,12 @@ export interface ChatType extends Document {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface PopulatedMembersType {
+  _id: string;
+  name: string;
+  avatar: {
+    public_id: string;
+    url: string;
+  };
+}
