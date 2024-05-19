@@ -21,6 +21,18 @@ const chatValidation = {
     //   })
     //   .array(),
   }),
+  AddMembers: z.object({
+    chatId: z.string({
+      required_error: 'ChatId is required',
+      invalid_type_error: 'ChatId must be a string',
+    }),
+    members: z
+      .string({
+        required_error: 'Memebers are required',
+        invalid_type_error: 'Members must be array of string',
+      })
+      .array(),
+  }),
 };
 
 export default chatValidation;
