@@ -1,16 +1,18 @@
 import bcrypt from 'bcryptjs';
-import { TryCatch } from '../middlewares/error.js';
-import { User } from '../models/User.js';
-import { generateToken } from '../utils/generateToken.js';
-import { errorMessage, successData } from '../utils/utility-func.js';
-import { cookieOptions } from '../utils/cookieOptions.js';
+
+import { TryCatch } from '../middlewares/error';
+import { User } from '../models/User';
+import { cookieOptions } from '../utils/cookieOptions';
+import { generateToken } from '../utils/generateToken';
+import { errorMessage, successData } from '../utils/utility-func';
 
 const registerUser = TryCatch(async (req, res, next) => {
   const { name, email, password, bio, avatar } = req.body;
   const alreadyExistedUser = await User.findOne({ email });
 
   if (alreadyExistedUser) {
-    return errorMessage(next, 'User with this email already exists', 400);
+    errorMessage(next, 'User with this email already exists', 400);
+    return;
   }
 
   const user = await User.create({
@@ -23,19 +25,21 @@ const registerUser = TryCatch(async (req, res, next) => {
 
   generateToken(res, user._id);
 
-  return successData(res, 'User registerd successfully', user, true);
+  return successData(res, 'User registered successfully', user, true);
 });
 
 const loginUser = TryCatch(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password }: { email: string; password: string } = req.body;
 
   const existedUser = await User.findOne({ email }).select('+password');
   if (!existedUser) {
-    return errorMessage(next, 'Invalid email or password', 400);
+    errorMessage(next, 'Invalid email or password', 400);
+    return;
   }
   const isPasswordMatch = await bcrypt.compare(password, existedUser.password);
   if (!isPasswordMatch) {
-    return errorMessage(next, 'Invalid email or password', 400);
+    errorMessage(next, 'Invalid email or password', 400);
+    return;
   }
   generateToken(res, existedUser._id);
   return successData(res, `Welcome back ${existedUser.name}`, existedUser);
@@ -54,4 +58,4 @@ const logOutUser = TryCatch(async (req, res, next) => {
     });
 });
 
-export { loginUser, registerUser, logOutUser };
+export { loginUser, logOutUser, registerUser };

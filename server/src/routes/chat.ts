@@ -1,8 +1,9 @@
 import express from 'express';
-import { authenticateUser } from '../middlewares/authenticateUser.js';
-import { addMembers, getMyChats, getMyGroups, newGroup } from '../controllers/chat.js';
-import { validateData } from '../middlewares/requestValidatorMiddleware.js';
-import chatValidation from '../validationSchema/chat.js';
+
+import { addMembers, getMyChats, getMyGroups, newGroup } from '../controllers/chat';
+import { authenticateUser } from '../middlewares/authenticateUser';
+import { validateData } from '../middlewares/requestValidatorMiddleware';
+import { chatValidation } from '../validationSchema';
 
 const app = express.Router();
 

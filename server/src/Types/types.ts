@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { Document } from 'mongoose';
+import { type Document } from 'mongoose';
 
 export type ControllerType = (
   req: Request,
@@ -41,7 +41,16 @@ export interface CustomRequestType<T> extends Request {
 //   1: 'Ok',
 // };
 
-export interface ChatType extends Document {
+// export interface ChatType extends Document {
+//   name: string;
+//   groupChat: boolean;
+//   creator: string;
+//   members: string[];
+//   createdAt: string;
+//   updatedAt: string;
+// }
+
+export interface IChatType {
   name: string;
   groupChat: boolean;
   creator: string;
@@ -50,6 +59,7 @@ export interface ChatType extends Document {
   updatedAt: string;
 }
 
+export interface ChatType extends Document, IChatType {}
 export interface PopulatedMembersType {
   _id: string;
   name: string;

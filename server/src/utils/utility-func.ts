@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from 'express';
 
-import ErrorHandler from './utility-class.js';
+import ErrorHandler from './utility-class';
 
 const successData = <T>(res: Response, message: string, data: T, register?: boolean) => {
   const jsonData = {
@@ -18,15 +18,15 @@ const successData = <T>(res: Response, message: string, data: T, register?: bool
 const getErrorMessageAccordingToStatus = (status: number, message?: string) => {
   switch (status) {
     case 400:
-      return message ? message : 'Bad Request';
+      return message || 'Bad Request';
     case 401:
-      return message ? message : 'Unauthorized';
+      return message || 'Unauthorized';
     case 403:
-      return message ? message : 'Forbidden';
+      return message || 'Forbidden';
     case 404:
-      return message ? message : 'Not Found';
+      return message || 'Not Found';
     case 500:
-      return message ? message : 'Internal Server Error';
+      return message || 'Internal Server Error';
     default:
       return 'An error occurred';
   }
@@ -39,7 +39,7 @@ const errorMessage = (
   details?: string | string[] | undefined
   // details?: ErrorDetailsType[] | string | string[] | undefined
 ) => {
-  return next(new ErrorHandler(getErrorMessageAccordingToStatus(status, message), status, details));
+  next(new ErrorHandler(getErrorMessageAccordingToStatus(status, message), status, details));
 };
 
 export { errorMessage, successData };

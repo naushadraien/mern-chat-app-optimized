@@ -1,5 +1,5 @@
-import chatConfig from '../config/index.js';
-import { cookieOptionsType } from '../Types/types.js';
+import chatConfig from '../config';
+import { type cookieOptionsType } from '../Types/types';
 
 const cookieOptions: cookieOptionsType = {
   httpOnly: true,

@@ -1,4 +1,4 @@
-import { PopulatedMembersType } from '../Types/types.js';
+import { type PopulatedMembersType } from '../Types/types';
 
 const getOtherMembers = (members: PopulatedMembersType[] | string[], userId: string) => {
   return members.find(

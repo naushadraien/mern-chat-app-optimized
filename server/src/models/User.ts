@@ -1,6 +1,7 @@
-import mongoose, { Schema, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { UserType } from '../Types/types.js';
+import mongoose, { type Model, Schema } from 'mongoose';
+
+import { type UserType } from '../Types/types.js';
 
 const userSchema = new Schema(
   {
@@ -40,7 +41,10 @@ const userSchema = new Schema(
 );
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password')) {
+    next();
+    return;
+  }
   this.password = await bcrypt.hash(this.password, 10);
 });
 

@@ -1,4 +1,4 @@
-import envConfigs from './env.config.js';
+import envConfigs from './env.config';
 const chatConfig = {
   ...envConfigs,
 };

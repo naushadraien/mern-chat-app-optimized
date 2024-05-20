@@ -1,21 +1,27 @@
-import { ALERT, REFETCH_CHATS } from '../constants/events.js';
-import { TryCatch } from '../middlewares/error.js';
-import { Chat } from '../models/Chat.js';
-import { User } from '../models/User.js';
-import { ChatType, CustomRequestType, PopulatedMembersType, UserType } from '../Types/types.js';
-import { emitEvent } from '../utils/emitEvents.js';
-import { getOtherMembers } from '../utils/helperfunc.js';
-import { errorMessage, successData } from '../utils/utility-func.js';
+import { ALERT, REFETCH_CHATS } from '../constants/events';
+import { TryCatch } from '../middlewares/error';
+import { Chat } from '../models/Chat';
+import { User } from '../models/User';
+import {
+  type ChatType,
+  type CustomRequestType,
+  type PopulatedMembersType,
+  type UserType,
+} from '../Types/types';
+import { emitEvent } from '../utils/emitEvents';
+import { getOtherMembers } from '../utils/helperfunc';
+import { errorMessage, successData } from '../utils/utility-func';
 
 const newGroup = TryCatch(async (req: CustomRequestType<ChatType>, res, next) => {
   const { name, members } = req.body;
 
   if (members.includes(req?.user?.id)) {
-    return errorMessage(
+    errorMessage(
       next,
       'You are already included in members, please provide other two or more members',
       400
     );
+    return;
   }
   const allMembers = [...members, req?.user?.id];
 
@@ -33,7 +39,7 @@ const newGroup = TryCatch(async (req: CustomRequestType<ChatType>, res, next) =>
 });
 
 const getMyChats = TryCatch(async (req: CustomRequestType<UserType>, res, next) => {
-  //this is for showing users or groups in the sidebar for the requested user
+  // this is for showing users or groups in the sidebar for the requested user
   const chats = await Chat.find({ members: req.user?._id }).populate('members', 'name avatar'); // here populate is used to get only name and avatar of the members of the chat
   console.log('chats', chats);
 
@@ -53,17 +59,20 @@ const getMyChats = TryCatch(async (req: CustomRequestType<UserType>, res, next) 
                 typeof member !== 'string' && member.avatar.url
             )
         : [otherMembers.avatar.url],
-      members: chat.members.reduce((prev: string[], curr: PopulatedMembersType | string) => {
-        //prev means previous value that is returned from the previous iteration which is also called as accumulator and curr is the current value that is being processed in the current iteration
-        if (typeof curr === 'string') {
+      members: chat.members.reduce<string[]>(
+        (prev: string[], curr: PopulatedMembersType | string) => {
+          // prev means previous value that is returned from the previous iteration which is also called as accumulator and curr is the current value that is being processed in the current iteration
+          if (typeof curr === 'string') {
+            return prev;
+          }
+          if (curr._id.toString() !== req.user?._id.toString()) {
+            prev.push(curr._id);
+            return prev;
+          }
           return prev;
-        }
-        if (curr._id.toString() !== req.user?._id.toString()) {
-          prev.push(curr._id);
-          return prev;
-        }
-        return prev;
-      }, [] as string[]),
+        },
+        []
+      ),
     };
   });
 
@@ -96,13 +105,16 @@ const addMembers = TryCatch(
     const { chatId, members } = req.body;
     const chat = await Chat.findById(chatId);
     if (!chat) {
-      return errorMessage(next, 'Chat not found', 404);
+      errorMessage(next, 'Chat not found', 404);
+      return;
     }
     if (!chat.groupChat) {
-      return errorMessage(next, 'This is not a group chat', 400);
+      errorMessage(next, 'This is not a group chat', 400);
+      return;
     }
     if (chat.creator.toString() !== req.user?._id.toString()) {
-      return errorMessage(next, 'You are not allowed to add members', 403);
+      errorMessage(next, 'You are not allowed to add members', 403);
+      return;
     }
 
     const allNewMembersPromise = members.map((member) => User.findById(member).select('name'));
@@ -110,10 +122,11 @@ const addMembers = TryCatch(
     const allNewMembers = await Promise.all(allNewMembersPromise);
     const uniqueNewMembers: string[] = allNewMembers
       .filter((mem) => !chat.members.includes(mem?._id ?? ''))
-      .map((mem) => (mem && mem._id) ?? '');
+      .map((mem) => mem?._id ?? '');
     chat.members.push(...uniqueNewMembers);
     if (chat.members.length > 100) {
-      return errorMessage(next, 'Maximum members reached in this group', 400);
+      errorMessage(next, 'Maximum members reached in this group', 400);
+      return;
     }
     await chat.save();
 
@@ -126,4 +139,4 @@ const addMembers = TryCatch(
   }
 );
 
-export { newGroup, getMyChats, getMyGroups, addMembers };
+export { addMembers, getMyChats, getMyGroups, newGroup };

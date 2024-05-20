@@ -1,9 +1,9 @@
 import express from 'express';
 
-import { loginUser, logOutUser, registerUser } from '../controllers/auth.js';
-import { validateData } from '../middlewares/requestValidatorMiddleware.js';
-import authSchema from '../validationSchema/auth.js';
-import { singleAvatar } from '../middlewares/multer.js';
+import { loginUser, logOutUser, registerUser } from '../controllers/auth';
+import { singleAvatar } from '../middlewares/multer';
+import { validateData } from '../middlewares/requestValidatorMiddleware';
+import authSchema from '../validationSchema/auth';
 
 const app = express.Router();
 

@@ -1,5 +1,6 @@
-import mongoose, { Schema, Types, model, Model } from 'mongoose';
-import { ChatType } from '../Types/types.js';
+import mongoose, { type Model, model, Schema, Types } from 'mongoose';
+
+import { type ChatType } from '../Types/types';
 
 const chatSchema = new Schema(
   {

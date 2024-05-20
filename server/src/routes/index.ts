@@ -1,7 +1,7 @@
 import type { Application } from 'express';
 
-import authRouter from './auth.js';
-import chatRouter from './chat.js';
+import authRouter from './auth';
+import chatRouter from './chat';
 
 const baseRouter = '/api/v1';
 

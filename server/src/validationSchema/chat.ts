@@ -8,7 +8,7 @@ const chatValidation = {
     }),
     members: z
       .string({
-        required_error: 'Memebers are required',
+        required_error: 'Members are required',
         invalid_type_error: 'Members must be array of string',
       })
       .array()
@@ -28,7 +28,7 @@ const chatValidation = {
     }),
     members: z
       .string({
-        required_error: 'Memebers are required',
+        required_error: 'Members are required',
         invalid_type_error: 'Members must be array of string',
       })
       .array(),

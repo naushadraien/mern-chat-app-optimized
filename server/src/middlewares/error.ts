@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 
-import type { ControllerType } from '../Types/types.js';
-import type ErrorHandler from '../utils/utility-class.js';
+import { type ControllerType } from '../Types/types';
+import type ErrorHandler from '../utils/utility-class';
 
 const errorMiddleware = (err: ErrorHandler, req: Request, res: Response, next: NextFunction) => {
   err.message ||= 'Internal server error';
