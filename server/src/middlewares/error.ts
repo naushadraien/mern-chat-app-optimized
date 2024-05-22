@@ -1,7 +1,80 @@
 import type { NextFunction, Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
+import chatConfig from '../config';
 import { type ControllerType } from '../Types/types';
 import type ErrorHandler from '../utils/utility-class';
+
+interface ErrorResponse {
+  status: string;
+  name: string;
+  message: string;
+  stack?: string;
+}
+
+const JWT_ERROR = 'JsonWebTokenError';
+const TOKEN_EXPIRED_ERROR = 'TokenExpiredError';
+const MONGO_SERVER_ERROR = 'MongoServerError';
+const SYNTAX_ERROR = 'SyntaxError';
+
+const sendError = (error: ErrorHandler, req: Request, res: Response, _next: NextFunction) => {
+  const NODE_ENV = process.env.NODE_ENV;
+
+  const customError = {
+    ...error,
+    name: error.name,
+    code: error.statusCode,
+    message: error.message,
+    stack: error.stack,
+  };
+
+  switch (customError.name) {
+    case JWT_ERROR:
+      customError.name = 'JWT Error';
+      customError.message = 'Your token is invalid! Please log in again!!';
+      customError.statusCode = StatusCodes.UNAUTHORIZED;
+      break;
+    case TOKEN_EXPIRED_ERROR:
+      customError.name = 'JWT Token Expired';
+      customError.message = 'Your token has expired! Please log in again!!';
+      customError.statusCode = StatusCodes.UNAUTHORIZED;
+      break;
+    case MONGO_SERVER_ERROR:
+      if (customError.code === 11000) {
+        const duplicateField = customError.message
+          .split('index: ')[1]
+          .split('dup key')[0]
+          .split('_')[0];
+        customError.name = 'Duplicate field';
+        customError.message = `Duplicate field ${duplicateField}. Please use another value`;
+        customError.statusCode = StatusCodes.BAD_REQUEST;
+      }
+      break;
+    case SYNTAX_ERROR:
+      if (customError.message.includes('Unexpected token ')) {
+        customError.message = 'Invalid data format';
+        customError.statusCode = StatusCodes.BAD_REQUEST;
+      }
+      break;
+  }
+
+  !customError.isOperational &&
+    console.error(customError.message, {
+      metadata: { ...customError, ip: req.ip, app: req.app.locals.title },
+    });
+
+  const errorResponse: ErrorResponse = {
+    status: customError.status,
+    name: customError.name,
+    message: customError.message,
+  };
+
+  if (NODE_ENV === chatConfig.ENVS.DEV) {
+    errorResponse.stack = customError.stack;
+  }
+
+  return res.status(error.statusCode || 500).json(errorResponse);
+};
 
 const errorMiddleware = (err: ErrorHandler, req: Request, res: Response, next: NextFunction) => {
   err.message ||= 'Internal server error';
@@ -10,11 +83,7 @@ const errorMiddleware = (err: ErrorHandler, req: Request, res: Response, next: N
 
   if (err.name === 'CastError') err.message = 'Invalid Id';
 
-  return res.status(err.statusCode).json({
-    success: false,
-    message: err.message,
-    details: err.details,
-  });
+  sendError(err, req, res, next);
 };
 
 const TryCatch =

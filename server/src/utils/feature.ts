@@ -12,6 +12,7 @@ const connectDB = async (uri: string): Promise<void> => {
     console.log('\x1b[91m' + '🔴 Press CTRL-C to stop\n' + '\x1b[0m');
   } catch (error) {
     console.log('Error while connecting with DB', error);
+    throw error;
   }
 };
 

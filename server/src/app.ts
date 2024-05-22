@@ -8,7 +8,10 @@ import { errorMiddleware } from './middlewares/error';
 import { mainRouter } from './routes';
 import connectDB from './utils/feature';
 
-connectDB(chatConfig.Mongo_URI);
+connectDB(chatConfig.Mongo_URI).catch((error) => {
+  console.error('Failed to connect to the database:', error);
+  throw error;
+});
 const app = express();
 app.locals.version = '1.0.0';
 app.locals.title = 'Mern Chat App';
@@ -17,7 +20,15 @@ app.get('/', (req: Request, res: Response, next: NextFunction) => {
   res.send('Api working on /api/v1');
 });
 app.use(cookieParser());
+
 mainRouter(app);
+
+app.use('*', (req: Request, res: Response, _next: NextFunction) => {
+  res
+    .status(404)
+    .json({ message: `Cannot ${req.method} ${req.originalUrl} or this route not found` });
+});
+
 app.use(errorMiddleware);
 app.listen(chatConfig.PORT, () => {
   console.log(`Server is working on http://localhost:${chatConfig.PORT}`);
