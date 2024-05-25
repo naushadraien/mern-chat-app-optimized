@@ -1,7 +1,7 @@
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 
 import chatConfig from '../config';
-import { User } from '../models/User';
+import { User } from '../models/user';
 import { type CustomRequestType, type UserType } from '../Types/types';
 import { errorMessage } from '../utils/utility-func';
 import { TryCatch } from './error';

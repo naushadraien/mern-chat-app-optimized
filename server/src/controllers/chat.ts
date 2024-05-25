@@ -1,7 +1,7 @@
 import { ALERT, REFETCH_CHATS } from '../constants/events';
 import { TryCatch } from '../middlewares/error';
-import { Chat } from '../models/Chat';
-import { User } from '../models/User';
+import { Chat } from '../models/chat';
+import { User } from '../models/user';
 import {
   type ChatType,
   type CustomRequestType,
@@ -15,7 +15,7 @@ import { errorMessage, successData } from '../utils/utility-func';
 const newGroup = TryCatch(async (req: CustomRequestType<ChatType>, res, next) => {
   const { name, members } = req.body;
 
-  if (members.includes(req?.user?.id)) {
+  if (members.includes(req?.user?._id.toString())) {
     errorMessage(
       next,
       'You are already included in members, please provide other two or more members',

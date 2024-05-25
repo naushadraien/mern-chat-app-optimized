@@ -20,7 +20,7 @@ app.get('/', (req: Request, res: Response, next: NextFunction) => {
   res.send('Api working on /api/v1');
 });
 app.use(cookieParser());
-
+// createUser(10);
 mainRouter(app);
 
 app.use('*', (req: Request, res: Response, _next: NextFunction) => {

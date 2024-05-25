@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 
 import { TryCatch } from '../middlewares/error';
-import { User } from '../models/User';
+import { User } from '../models/user';
 import { cookieOptions } from '../utils/cookieOptions';
 import { generateToken } from '../utils/generateToken';
 import { errorMessage, successData } from '../utils/utility-func';
