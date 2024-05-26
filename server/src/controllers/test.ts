@@ -281,6 +281,9 @@ const createNewInventory = TryCatch(async (req, res, next) => {
 
 const getExtraOrderManipulation = TryCatch(async (req, res, next) => {
   const orders = await Orders.aggregate([
+    // {
+    //   $match: {}, // here match stage is empty so it will return all the documents from the collection
+    // },
     {
       $match: {
         price: {
