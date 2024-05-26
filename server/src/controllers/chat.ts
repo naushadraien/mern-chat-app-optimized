@@ -40,41 +40,107 @@ const newGroup = TryCatch(async (req: CustomRequestType<ChatType>, res, next) =>
 
 const getMyChats = TryCatch(async (req: CustomRequestType<UserType>, res, next) => {
   // this is for showing users or groups in the sidebar for the requested user
-  const chats = await Chat.find({ members: req.user?._id }).populate('members', 'name avatar'); // here populate is used to get only name and avatar of the members of the chat
-  console.log('chats', chats);
+  // const chats = await Chat.find({ members: req.user?._id }).populate('members', 'name avatar'); // here populate is used to get only name and avatar of the members of the chat
 
-  const transFormedChats = chats.map((chat) => {
-    const otherMembers = getOtherMembers(
-      chat.members,
-      req?.user?._id || ''
-    ) as PopulatedMembersType;
-    return {
-      _id: chat._id,
-      name: chat.groupChat ? chat.name : otherMembers.name,
-      avatar: chat.groupChat
-        ? chat.members
-            .slice(0, 3)
-            .map(
-              (member: PopulatedMembersType | string) =>
-                typeof member !== 'string' && member.avatar.url
-            )
-        : [otherMembers.avatar.url],
-      members: chat.members.reduce<string[]>(
-        (prev: string[], curr: PopulatedMembersType | string) => {
-          // prev means previous value that is returned from the previous iteration which is also called as accumulator and curr is the current value that is being processed in the current iteration
-          if (typeof curr === 'string') {
-            return prev;
-          }
-          if (curr._id.toString() !== req.user?._id.toString()) {
-            prev.push(curr._id);
-            return prev;
-          }
-          return prev;
+  // const transFormedChats = chats.map((chat) => {
+  //   const otherMembers = getOtherMembers(
+  //     chat.members,
+  //     req?.user?._id || ''
+  //   ) as PopulatedMembersType;
+  //   return {
+  //     _id: chat._id,
+  //     name: chat.groupChat ? chat.name : otherMembers.name,
+  //     avatar: chat.groupChat
+  //       ? chat.members
+  //           .slice(0, 3)
+  //           .map(
+  //             (member: PopulatedMembersType | string) =>
+  //               typeof member !== 'string' && member.avatar.url
+  //           )
+  //       : [otherMembers.avatar.url],
+  //     members: chat.members.reduce<string[]>(
+  //       (prev: string[], curr: PopulatedMembersType | string) => {
+  //         // prev means previous value that is returned from the previous iteration which is also called as accumulator and curr is the current value that is being processed in the current iteration
+  //         if (typeof curr === 'string') {
+  //           return prev;
+  //         }
+  //         if (curr._id.toString() !== req.user?._id.toString()) {
+  //           prev.push(curr._id);
+  //           return prev;
+  //         }
+  //         return prev;
+  //       },
+  //       []
+  //     ),
+  //   };
+  // });
+
+  const transFormedChats = await Chat.aggregate([
+    {
+      $match: {
+        members: req?.user?._id,
+      },
+    },
+    {
+      $lookup: {
+        // lookup method is similar to populate method in mongoose for getting data from other collections based on the reference
+        from: 'users',
+        localField: 'members',
+        foreignField: '_id',
+        as: 'members',
+      },
+    },
+    {
+      // after lookup we get members as array of objects so we need to unwind it to get members as object
+      $unwind: '$members',
+    },
+    {
+      $group: {
+        _id: '$_id',
+        name: { $first: '$name' },
+        groupChat: { $first: '$groupChat' },
+        members: { $push: '$members' },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: {
+          $cond: {
+            if: '$groupChat',
+            then: '$name',
+            else: { $arrayElemAt: ['$members.name', 0] },
+          },
         },
-        []
-      ),
-    };
-  });
+        avatar: {
+          $cond: {
+            if: '$groupChat',
+            then: {
+              $slice: ['$members.avatar.url', 3],
+            },
+            else: [{ $arrayElemAt: ['$members.avatar.url', 0] }],
+          },
+        },
+        members: {
+          $map: {
+            // map is used to iterate over the members array and get only the _id of the members except the current user
+            input: {
+              $filter: {
+                // filter is used to filter the members array based on the condition provided
+                input: '$members',
+                as: 'member', // as is used to give the name to the current member that is being processed in the filter
+                cond: {
+                  $ne: ['$$member._id', req.user?._id],
+                },
+              },
+            },
+            as: 'member',
+            in: '$$member._id', // in is used to get the value of the current member that is being processed in the map. Here $$ is used to get the value of the member coming from the filter and $$member._id is used from the as provided in the filter
+          },
+        },
+      },
+    },
+  ]);
 
   return successData(res, '', transFormedChats);
 });

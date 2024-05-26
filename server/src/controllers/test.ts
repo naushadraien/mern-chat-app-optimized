@@ -257,6 +257,7 @@ as: This is the name of the new array field to add to the input documents. This 
     },
     {
       $lookup: {
+        // lookup is mainly used in mongodb to populate the data from another collection in the same database
         // Joining two collections using lookup and getting data from both collections in a single object. This performs a left outer join to an unsharded collection in the same database to filter in documents from the “joined” collection for processing.
         from: 'inventories', // Collection name from which data is to be fetched and can be the same name as the collection stored in the database
         localField: 'orderId', // Field from the input documents
@@ -265,6 +266,7 @@ as: This is the name of the new array field to add to the input documents. This 
       },
     },
     {
+      // after lookup we get the data in the form of array so we need to unwind it to get the data in object form
       $unwind: '$inventory_id', // Deconstructing the array field from the input documents to output a document for each element. Here inventory_id is the array field that is to be deconstructed
     },
   ]);
