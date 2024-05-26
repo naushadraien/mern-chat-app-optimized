@@ -146,24 +146,69 @@ const getMyChats = TryCatch(async (req: CustomRequestType<UserType>, res, next) 
 });
 
 const getMyGroups = TryCatch(async (req: CustomRequestType<UserType>, res, next) => {
-  const chats = await Chat.find({
-    members: req?.user?._id,
-    groupChat: true,
-    creator: req.user?._id,
-  }).populate('members', 'name avatar');
+  // const chats = await Chat.find({
+  //   members: req?.user?._id,
+  //   groupChat: true,
+  //   creator: req.user?._id,
+  // }).populate('members', 'name avatar');
 
-  const groups = chats.map((chat) => ({
-    name: chat.name,
-    groupChat: chat.groupChat,
-    avatar: chat.members
-      .slice(0, 3)
-      .map(
-        (member: PopulatedMembersType | string) => typeof member !== 'string' && member.avatar.url
-      ),
-    _id: chat._id,
-  }));
+  // const groups = chats.map((chat) => ({
+  //   name: chat.name,
+  //   groupChat: chat.groupChat,
+  //   avatar: chat.members
+  //     .slice(0, 3)
+  //     .map(
+  //       (member: PopulatedMembersType | string) => typeof member !== 'string' && member.avatar.url
+  //     ),
+  //   _id: chat._id,
+  // }));
 
-  return successData(res, '', groups);
+  const transFormedGroups = await Chat.aggregate([
+    {
+      $match: {
+        members: req?.user?._id,
+        groupChat: true,
+        creator: req?.user?._id,
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'members',
+        foreignField: '_id',
+        as: 'members',
+      },
+    },
+    {
+      $unwind: '$members',
+    },
+    {
+      $group: {
+        _id: '$_id',
+
+        name: {
+          $first: '$name',
+        },
+        groupChat: {
+          $first: '$groupChat',
+        },
+        members: {
+          $push: '$members',
+        },
+      },
+    },
+    {
+      $project: {
+        name: 1,
+        groupChat: 1,
+        avatar: {
+          $slice: ['$members.avatar.url', 3],
+        },
+      },
+    },
+  ]);
+
+  return successData(res, '', transFormedGroups);
 });
 
 const addMembers = TryCatch(

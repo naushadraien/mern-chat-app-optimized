@@ -278,4 +278,80 @@ const createNewInventory = TryCatch(async (req, res, next) => {
 
   return successData(res, 'Inventory created successfully', undefined, true);
 });
-export { createNewInventory, createNewOrders, getOrdersData, getUsersData };
+
+const getExtraOrderManipulation = TryCatch(async (req, res, next) => {
+  const orders = await Orders.aggregate([
+    {
+      $match: {
+        price: {
+          $gte: 20,
+          $lte: 400,
+        },
+        quantity: {
+          $gte: 10,
+          $lte: 100,
+        },
+      },
+    },
+    {
+      $addFields: {
+        totalPrice: {
+          $multiply: ['$price', '$quantity'],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        priceAndQuantity: {
+          $push: '$totalPrice',
+        },
+        price: {
+          $first: '$price',
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        price: 1,
+        priceAndQuantity: 1,
+        totalReducedprice: {
+          $reduce: {
+            input: '$priceAndQuantity',
+            initialValue: '$price',
+            in: {
+              $multiply: ['$$value', '$$this'],
+            },
+          },
+        },
+        totalMappedPrice: {
+          $map: {
+            input: '$priceAndQuantity',
+            as: 'item',
+            in: {
+              $multiply: ['$price', '$$item'],
+            },
+          },
+        },
+        totalFilteredPrice: {
+          $filter: {
+            input: '$priceAndQuantity',
+            as: 'item',
+            cond: {
+              $gte: ['$$item', '$price'],
+            },
+          },
+        },
+      },
+    },
+  ]);
+  return successData(res, '', orders);
+});
+export {
+  createNewInventory,
+  createNewOrders,
+  getExtraOrderManipulation,
+  getOrdersData,
+  getUsersData,
+};
