@@ -237,13 +237,35 @@ as: This is the name of the new array field to add to the input documents. This 
     */
 
     {
+      $group: {
+        _id: '$size',
+        orderId: {
+          $first: '$_id',
+        },
+      },
+    },
+    {
+      $addFields: {
+        // Adding new fields to the output document
+        orderSize: '$_id', // Adding new field orderSize to the output document and assigning value of _id to it from the previous stage i.e group stage where _id is the size
+      },
+    },
+    {
+      $project: {
+        _id: 0, // Excluding _id field from the output document
+      },
+    },
+    {
       $lookup: {
         // Joining two collections using lookup and getting data from both collections in a single object. This performs a left outer join to an unsharded collection in the same database to filter in documents from the “joined” collection for processing.
         from: 'inventories', // Collection name from which data is to be fetched and can be the same name as the collection stored in the database
-        localField: '_id', // Field from the input documents
+        localField: 'orderId', // Field from the input documents
         foreignField: '_id', // Field from the documents of the "from" collection
         as: 'inventory_id', // Output array field
       },
+    },
+    {
+      $unwind: '$inventory_id', // Deconstructing the array field from the input documents to output a document for each element. Here inventory_id is the array field that is to be deconstructed
     },
   ]);
 
