@@ -159,6 +159,92 @@ const getOrdersData = TryCatch(async (req, res, next) => {
         },
       },
     },
+
+    // {
+    //   $project: {
+    //     price: 1,
+    //     quantity: 1,
+    //     priceAndQuantity: {
+    //       $add: ['$price', '$quantity'],
+    //     },
+    //     multiplyOfPriceWithQuantity: {
+    //       $multiply: ['$price', '$quantity'],
+    //     },
+    //   },
+    // },
+    // {
+    //   $group: {
+    //     _id: null,
+    //     ordersTotal: {
+    //       $sum: '$price',
+    //     },
+    //     averagePrice: {
+    //       $avg: '$price',
+    //     },
+    //     minPrice: {
+    //       $min: '$price',
+    //     },
+    //     maxPrice: {
+    //       $max: '$price',
+    //     },
+    //     countDocuments: {
+    //       $sum: 1,
+    //     },
+    //     sumOfPriceAndQuantity: {
+    //       $sum: '$priceAndQuantity',
+    //     },
+    //   },
+    // },
+
+    // {
+    //   $group: {
+    //     _id: '$name',
+    //     sizeArray: {
+    //       $push: '$size',
+    //     },
+    //   },
+    // },
+
+    /* This is example with explanation for lookup aggregation
+
+The $lookup stage in MongoDB performs a left outer join to another collection in the same database to filter in documents from the "joined" collection for processing. 
+Here's what each field means:
+
+from: This is the name of the collection you want to join with. This is the "foreign" collection.
+
+localField: This is the field from the documents in the collection on which the aggregation pipeline is being run (the "local" collection). This field is compared with the foreignField to find matching documents.
+
+foreignField: This is the field from the documents in the from collection. This field is compared with the localField to find matching documents.
+
+as: This is the name of the new array field to add to the input documents. This array field contains the matching documents from the from collection.
+
+    // For example, let's say you have two collections: orders and products.
+    // Each document in the orders collection has a productId field that corresponds to the _id field in the products collection.
+    // You can use the $lookup stage in an aggregation pipeline on the orders collection to include the corresponding product information in each order:
+
+    //     {
+    //   $lookup: {
+    //     from: 'products', // Join with the "products" collection
+    //     localField: 'productId', // Use the "productId" field in the "orders" collection
+    //     foreignField: '_id', // Match it against the "_id" field in the "products" collection
+    //     as: 'productInfo', // Add the matching product documents to a new "productInfo" field
+    //   },
+    // }
+
+    // In this example, the orders collection is the local collection, and the products collection is the foreign collection.
+    // The from field is set to 'products' to specify that we want to join with the products collection.
+
+    */
+
+    {
+      $lookup: {
+        // Joining two collections using lookup and getting data from both collections in a single object. This performs a left outer join to an unsharded collection in the same database to filter in documents from the “joined” collection for processing.
+        from: 'inventories', // Collection name from which data is to be fetched and can be the same name as the collection stored in the database
+        localField: '_id', // Field from the input documents
+        foreignField: '_id', // Field from the documents of the "from" collection
+        as: 'inventory_id', // Output array field
+      },
+    },
   ]);
 
   return successData(res, '', users);
