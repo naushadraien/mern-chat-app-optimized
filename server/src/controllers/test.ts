@@ -269,6 +269,11 @@ as: This is the name of the new array field to add to the input documents. This 
       // after lookup we get the data in the form of array so we need to unwind it to get the data in object form
       $unwind: '$inventory_id', // Deconstructing the array field from the input documents to output a document for each element. Here inventory_id is the array field that is to be deconstructed
     },
+    // {
+    //   $project: {
+    //     inventoryItemName: '$inventory_id.sku',
+    //   },
+    // },
   ]);
 
   return successData(res, '', users);
