@@ -33,6 +33,16 @@ const chatValidation = {
       })
       .array(),
   }),
+  RemoveMember: z.object({
+    chatId: z.string({
+      required_error: 'ChatId is required',
+      invalid_type_error: 'ChatId must be a string',
+    }),
+    userId: z.string({
+      required_error: 'UserId is required',
+      invalid_type_error: 'UserId must be a string',
+    }),
+  }),
 };
 
 export default chatValidation;

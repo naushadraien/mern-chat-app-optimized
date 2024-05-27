@@ -6,10 +6,12 @@ import { type ControllerType } from '../Types/types';
 import type ErrorHandler from '../utils/utility-class';
 
 interface ErrorResponse {
+  success: boolean;
   status: string;
   name: string;
   message: string;
   stack?: string;
+  schemaError?: string[] | string | undefined;
 }
 
 const JWT_ERROR = 'JsonWebTokenError';
@@ -64,9 +66,11 @@ const sendError = (error: ErrorHandler, req: Request, res: Response, _next: Next
     });
 
   const errorResponse: ErrorResponse = {
+    success: false,
     status: customError.status,
     name: customError.name,
     message: customError.message,
+    schemaError: customError.details,
   };
 
   if (NODE_ENV === chatConfig.ENVS.DEV) {
