@@ -6,9 +6,26 @@ const ordersSchema = new Schema(
   {
     _id: Number,
     name: String,
-    size: String,
-    price: Number,
-    quantity: Number,
+    size: {
+      type: String,
+      required: [true, 'Please provide size'], // it is validator in mongoose
+      enum: {
+        values: ['small', 'medium', 'large', 'extra-large'],
+        message: 'Size should be either small, medium or large',
+      }, // it is validator in mongoose
+    },
+    price: {
+      type: Number,
+      required: [true, 'Please provide price'], // it is validator in mongoose
+      min: [1, 'Price should be at least 1'], // it is validator in mongoose
+      max: [100, 'Price should not exceed 100'], // it is validator in mongoose
+    },
+    quantity: {
+      type: Number,
+      required: [true, 'Please provide quantity'], // it is validator in mongoose
+      min: [1, 'Quantity should be at least 1'], // it is validator in mongoose
+      max: [100, 'Quantity should not exceed 100'], // it is validator in mongoose
+    },
     date: Date,
   },
   {
@@ -77,6 +94,15 @@ ordersSchema.post(/^find/, function (docs, next) {
     console.error('Error writing to log file:', err);
   }
   next();
+});
+
+// aggregation middleware in mongoose
+ordersSchema.pre('aggregate', function (next) {
+  // this is an aggregation middleware in mongoose that runs before the aggregation is executed
+  console.log(this.pipeline().unshift({ $match: { price: { $gt: 5 } } })); // this is to add a $match stage to the beginning of the aggregation pipeline
+
+  console.log('Aggregation is about to be executed');
+  next(); // this is to move to the next middleware or the actual aggregation execution
 });
 
 const Orders = model('Order', ordersSchema);

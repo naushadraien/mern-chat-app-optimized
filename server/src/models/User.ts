@@ -7,16 +7,20 @@ const userSchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, 'Please provide name'],
+      required: [true, 'Please provide name'], // it is validator in mongoose
+      trim: true,
+      minlength: [3, 'Name should be at least 3 characters'], // it is validator in mongoose
+      maxlength: [20, 'Name should not exceed 20 characters'], // it is validator in mongoose
     },
     bio: {
       type: String,
       required: [true, 'Please provide biography'],
+      trim: true,
     },
     email: {
       type: String,
-      required: [true, 'Please provide email'],
-      unique: [true, 'This email is already registered'],
+      required: [true, 'Please provide email'], // it is validator in mongoose
+      unique: true, // it is not a validator so it is not written in []
       match: [/^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/, 'Please provide a valid email'],
     },
     password: {
