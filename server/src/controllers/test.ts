@@ -145,6 +145,12 @@ const createNewOrders = TryCatch(async (req, res, next) => {
 });
 
 const getOrdersData = TryCatch(async (req, res, next) => {
+  const orders = await Orders.find({});
+
+  return successData(res, '', orders);
+});
+
+const getPipelinedOrdersData = TryCatch(async (req, res, next) => {
   const users = await Orders.aggregate([
     {
       $match: {
@@ -367,5 +373,6 @@ export {
   createNewOrders,
   getExtraOrderManipulation,
   getOrdersData,
+  getPipelinedOrdersData,
   getUsersData,
 };
