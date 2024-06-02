@@ -24,7 +24,7 @@ const sendError = (error: ErrorHandler, req: Request, res: Response, _next: Next
     statusCode: error.statusCode,
     message: error.message,
     stack: error.stack,
-    mongoCode: error.code,
+    mongoCode: error.dbErrorcode,
   };
 
   switch (customError.name) {
