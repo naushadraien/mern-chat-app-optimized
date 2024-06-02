@@ -1,12 +1,12 @@
 import bcrypt from 'bcryptjs';
 
-import { TryCatch } from '../middlewares/error';
+import { asyncErrorHandler } from '../middlewares/error';
 import { User } from '../models/user';
 import { cookieOptions } from '../utils/cookieOptions';
 import { generateToken } from '../utils/generateToken';
 import { errorMessage, successData } from '../utils/utility-func';
 
-const registerUser = TryCatch(async (req, res, next) => {
+const registerUser = asyncErrorHandler(async (req, res, next) => {
   const { name, email, password, bio, avatar } = req.body;
   const alreadyExistedUser = await User.findOne({ email });
 
@@ -28,7 +28,7 @@ const registerUser = TryCatch(async (req, res, next) => {
   return successData(res, 'User registered successfully', user, true);
 });
 
-const loginUser = TryCatch(async (req, res, next) => {
+const loginUser = asyncErrorHandler(async (req, res, next) => {
   const { email, password }: { email: string; password: string } = req.body;
 
   const existedUser = await User.findOne({ email }).select('+password');
@@ -45,7 +45,7 @@ const loginUser = TryCatch(async (req, res, next) => {
   return successData(res, `Welcome back ${existedUser.name}`, existedUser);
 });
 
-const logOutUser = TryCatch(async (req, res, next) => {
+const logOutUser = asyncErrorHandler(async (req, res, next) => {
   return res
     .status(200)
     .cookie('token', '', {

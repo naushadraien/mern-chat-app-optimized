@@ -22,12 +22,15 @@ app.get('/', (req: Request, res: Response, next: NextFunction) => {
   res.send('Api working on /api/v1');
 });
 
-app.all('*', (req: Request, res: Response, _next: NextFunction) => {
+app.all('*', (req: Request, res: Response, next: NextFunction) => {
   // this should be defined at the end of all routes otherwise it will override all other routes
+
   res.status(404).json({
     status: 'fail',
     message: `Cannot ${req.method} ${req.originalUrl} or this route not found`,
   });
+
+  // next(new ErrorHandler(`Cannot ${req.method} ${req.originalUrl} or this route not found`, 404));
 });
 
 app.use(errorMiddleware);

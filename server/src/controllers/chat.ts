@@ -1,18 +1,12 @@
 import { ALERT, REFETCH_CHATS } from '../constants/events';
-import { TryCatch } from '../middlewares/error';
+import { asyncErrorHandler } from '../middlewares/error';
 import { Chat } from '../models/chat';
 import { User } from '../models/user';
-import {
-  type ChatType,
-  type CustomRequestType,
-  type PopulatedMembersType,
-  type UserType,
-} from '../Types/types';
+import { type ChatType, type CustomRequestType, type UserType } from '../Types/types';
 import { emitEvent } from '../utils/emitEvents';
-import { getOtherMembers } from '../utils/helperfunc';
 import { errorMessage, successData } from '../utils/utility-func';
 
-const newGroup = TryCatch(async (req: CustomRequestType<ChatType>, res, next) => {
+const newGroup = asyncErrorHandler(async (req: CustomRequestType<ChatType>, res, next) => {
   const { name, members } = req.body;
 
   if (members.includes(req?.user?._id.toString())) {
@@ -38,7 +32,7 @@ const newGroup = TryCatch(async (req: CustomRequestType<ChatType>, res, next) =>
   return successData(res, 'Group created successfully', undefined, true);
 });
 
-const getMyChats = TryCatch(async (req: CustomRequestType<UserType>, res, next) => {
+const getMyChats = asyncErrorHandler(async (req: CustomRequestType<UserType>, res, next) => {
   // this is for showing users or groups in the sidebar for the requested user
   // const chats = await Chat.find({ members: req.user?._id }).populate('members', 'name avatar'); // here populate is used to get only name and avatar of the members of the chat
 
@@ -145,7 +139,7 @@ const getMyChats = TryCatch(async (req: CustomRequestType<UserType>, res, next) 
   return successData(res, '', transFormedChats);
 });
 
-const getMyGroups = TryCatch(async (req: CustomRequestType<UserType>, res, next) => {
+const getMyGroups = asyncErrorHandler(async (req: CustomRequestType<UserType>, res, next) => {
   // const chats = await Chat.find({
   //   members: req?.user?._id,
   //   groupChat: true,
@@ -211,7 +205,7 @@ const getMyGroups = TryCatch(async (req: CustomRequestType<UserType>, res, next)
   return successData(res, '', transFormedGroups);
 });
 
-const addMembers = TryCatch(
+const addMembers = asyncErrorHandler(
   async (req: CustomRequestType<{ chatId: string; members: string[] }>, res, next) => {
     const { chatId, members } = req.body;
     const chat = await Chat.findById(chatId);
@@ -250,7 +244,7 @@ const addMembers = TryCatch(
   }
 );
 
-const removeMember = TryCatch(
+const removeMember = asyncErrorHandler(
   async (req: CustomRequestType<{ userId: string; chatId: string }>, res, next) => {
     const { userId, chatId } = req.body;
 

@@ -1,10 +1,10 @@
-import { TryCatch } from '../middlewares/error';
+import { asyncErrorHandler } from '../middlewares/error';
 import Inventory from '../models/testInventory';
 import Orders from '../models/testOrders';
 import { User } from '../models/user';
 import { successData } from '../utils/utility-func';
 
-const getUsersData = TryCatch(async (req, res, next) => {
+const getUsersData = asyncErrorHandler(async (req, res, next) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
@@ -138,19 +138,19 @@ const getUsersData = TryCatch(async (req, res, next) => {
   return successData(res, '', users);
 });
 
-const createNewOrders = TryCatch(async (req, res, next) => {
+const createNewOrders = asyncErrorHandler(async (req, res, next) => {
   await Orders.create(req.body);
 
   return successData(res, 'Order created successfully', undefined, true);
 });
 
-const getOrdersData = TryCatch(async (req, res, next) => {
+const getOrdersData = asyncErrorHandler(async (req, res, next) => {
   const orders = await Orders.find({});
 
   return successData(res, '', orders);
 });
 
-const getPipelinedOrdersData = TryCatch(async (req, res, next) => {
+const getPipelinedOrdersData = asyncErrorHandler(async (req, res, next) => {
   const users = await Orders.aggregate([
     {
       $match: {
@@ -290,13 +290,13 @@ as: This is the name of the new array field to add to the input documents. This 
 
   return successData(res, '', users);
 });
-const createNewInventory = TryCatch(async (req, res, next) => {
+const createNewInventory = asyncErrorHandler(async (req, res, next) => {
   await Inventory.create(req.body);
 
   return successData(res, 'Inventory created successfully', undefined, true);
 });
 
-const getExtraOrderManipulation = TryCatch(async (req, res, next) => {
+const getExtraOrderManipulation = asyncErrorHandler(async (req, res, next) => {
   const orders = await Orders.aggregate([
     // {
     //   $match: {}, // here match stage is empty so it will return all the documents from the collection

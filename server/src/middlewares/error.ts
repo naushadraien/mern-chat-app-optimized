@@ -80,6 +80,7 @@ const sendError = (error: ErrorHandler, req: Request, res: Response, _next: Next
   return res.status(error.statusCode || 500).json(errorResponse);
 };
 
+// this is errorHandler middleware function that is called when any error is thrown in the ErrorHandler class by using next(new ErrorHandler('User not found', 404))
 const errorMiddleware = (err: ErrorHandler, req: Request, res: Response, next: NextFunction) => {
   err.message ||= 'Internal server error';
   err.statusCode ||= 500;
@@ -90,7 +91,7 @@ const errorMiddleware = (err: ErrorHandler, req: Request, res: Response, next: N
   sendError(err, req, res, next);
 };
 
-const TryCatch =
+const asyncErrorHandler =
   (fn: ControllerType) => async (req: Request, res: Response, next: NextFunction) => {
     try {
       await fn(req, res, next);
@@ -99,4 +100,4 @@ const TryCatch =
     }
   };
 
-export { errorMiddleware, TryCatch };
+export { asyncErrorHandler, errorMiddleware };
