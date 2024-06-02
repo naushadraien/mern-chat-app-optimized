@@ -1,17 +1,24 @@
 import fs from 'fs';
 import { model, Schema } from 'mongoose';
+import validator from 'validator';
 // import path from 'path';
 
 const ordersSchema = new Schema(
   {
     _id: Number,
-    name: String,
+    name: {
+      type: String,
+      validate: [
+        validator.isAlpha,
+        'Name should only contains string values not special characters or numbers',
+      ],
+    },
     size: {
       type: String,
       required: [true, 'Please provide size'], // it is validator in mongoose
       enum: {
         values: ['small', 'medium', 'large', 'extra-large'],
-        message: 'Size should be either small, medium or large',
+        message: '{VALUE} is not supported. Please select from small, medium, large, extra-large',
       }, // it is validator in mongoose
     },
     price: {
@@ -23,8 +30,16 @@ const ordersSchema = new Schema(
     quantity: {
       type: Number,
       required: [true, 'Please provide quantity'], // it is validator in mongoose
-      min: [1, 'Quantity should be at least 1'], // it is validator in mongoose
-      max: [100, 'Quantity should not exceed 100'], // it is validator in mongoose
+      // min: [1, 'Quantity should be at least 1'], // it is validator in mongoose
+      // max: [100, 'Quantity should not exceed 100'], // it is validator in mongoose
+      validate: {
+        // this is a custom validator in mongoose
+        validator: function (value: number) {
+          return value >= 1 && value <= 100;
+        },
+        // message: (props: { value: number }) => `${props.value} should be between 1 and 100`,
+        message: 'Quantity should be between 1 and 100',
+      },
     },
     date: Date,
   },
