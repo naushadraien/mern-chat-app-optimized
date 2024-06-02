@@ -14,19 +14,20 @@ app.locals.title = 'Mern Chat App';
 app.use(morgan(chatConfig.LOGS));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(cookieParser());
+// createUser(10);
+mainRouter(app);
 
 app.get('/', (req: Request, res: Response, next: NextFunction) => {
   res.send('Api working on /api/v1');
 });
 
-app.use(cookieParser());
-// createUser(10);
-mainRouter(app);
-
 app.all('*', (req: Request, res: Response, _next: NextFunction) => {
-  res
-    .status(404)
-    .json({ message: `Cannot ${req.method} ${req.originalUrl} or this route not found` });
+  // this should be defined at the end of all routes otherwise it will override all other routes
+  res.status(404).json({
+    status: 'fail',
+    message: `Cannot ${req.method} ${req.originalUrl} or this route not found`,
+  });
 });
 
 app.use(errorMiddleware);
