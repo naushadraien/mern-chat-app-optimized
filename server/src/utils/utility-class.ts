@@ -4,7 +4,7 @@ class ErrorHandler extends Error {
   name: string;
   isOperational: boolean;
   status: 'error' | 'fail';
-  dbErrorcode?: number;
+  code?: number;
 
   constructor(
     // if custom error is thrown to this class, it will be caught here by the constructor and the message will be displayed
