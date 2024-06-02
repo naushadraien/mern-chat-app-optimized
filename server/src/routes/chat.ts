@@ -5,14 +5,14 @@ import { authenticateUser } from '../middlewares/authenticateUser';
 import { validateData } from '../middlewares/requestValidatorMiddleware';
 import { chatValidation } from '../validationSchema';
 
-const app = express.Router();
+const router = express.Router();
 
-app.use(authenticateUser);
+router.use(authenticateUser);
 
-app.get('/myChats', getMyChats);
-app.get('/myGroups', getMyGroups);
-app.post('/newGroup', validateData(chatValidation.NewGroup), newGroup);
-app.put('/addMembers', validateData(chatValidation.AddMembers), addMembers);
-app.put('/removeMember', validateData(chatValidation.RemoveMember), removeMember);
+router.get('/myChats', getMyChats);
+router.get('/myGroups', getMyGroups);
+router.post('/newGroup', validateData(chatValidation.NewGroup), newGroup);
+router.put('/addMembers', validateData(chatValidation.AddMembers), addMembers);
+router.put('/removeMember', validateData(chatValidation.RemoveMember), removeMember);
 
-export default app;
+export default router;

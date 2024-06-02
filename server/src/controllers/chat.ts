@@ -1,8 +1,8 @@
 import { ALERT, REFETCH_CHATS } from '../constants/events';
-import { asyncErrorHandler } from '../middlewares/error';
 import { Chat } from '../models/chat';
 import { User } from '../models/user';
 import { type ChatType, type CustomRequestType, type UserType } from '../Types/types';
+import asyncErrorHandler from '../utils/asyncErrorHandler';
 import { emitEvent } from '../utils/emitEvents';
 import { errorMessage, successData } from '../utils/utility-func';
 

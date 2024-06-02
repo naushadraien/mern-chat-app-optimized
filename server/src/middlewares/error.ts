@@ -3,27 +3,19 @@ import { StatusCodes } from 'http-status-codes';
 
 import chatConfig from '../config';
 import ENVS from '../constants/deploymentStatus';
-import { type ControllerType } from '../Types/types';
+import {
+  AUTHENTICATION_ERROR,
+  CAST_ERROR,
+  JWT_ERROR,
+  MONGO_SERVER_ERROR,
+  NOT_FOUND_ERROR,
+  RATE_LIMIT_ERROR,
+  SYNTAX_ERROR,
+  TOKEN_EXPIRED_ERROR,
+  VALIDATION_ERROR,
+} from '../constants/errorName';
+import { type ErrorResponse } from '../Types/error';
 import type ErrorHandler from '../utils/utility-class';
-
-interface ErrorResponse {
-  success: boolean;
-  status: string;
-  name: string;
-  message: string;
-  stack?: string;
-  schemaError?: string[] | string | undefined;
-}
-
-const JWT_ERROR = 'JsonWebTokenError';
-const TOKEN_EXPIRED_ERROR = 'TokenExpiredError';
-const MONGO_SERVER_ERROR = 'MongoServerError';
-const SYNTAX_ERROR = 'SyntaxError';
-const CAST_ERROR = 'CastError';
-const VALIDATION_ERROR = 'ValidationError';
-const NOT_FOUND_ERROR = 'NotFoundError';
-const AUTHENTICATION_ERROR = 'AuthenticationError';
-const RATE_LIMIT_ERROR = 'RateLimitError';
 
 const sendError = (error: ErrorHandler, req: Request, res: Response, _next: NextFunction) => {
   const customError = {
@@ -32,7 +24,7 @@ const sendError = (error: ErrorHandler, req: Request, res: Response, _next: Next
     statusCode: error.statusCode,
     message: error.message,
     stack: error.stack,
-    mongoCode: error.code, // Add this line
+    mongoCode: error.code,
   };
 
   switch (customError.name) {
@@ -126,13 +118,4 @@ const errorMiddleware = (err: ErrorHandler, req: Request, res: Response, next: N
   sendError(err, req, res, next);
 };
 
-const asyncErrorHandler =
-  (fn: ControllerType) => async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await fn(req, res, next);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-export { asyncErrorHandler, errorMiddleware };
+export { errorMiddleware };

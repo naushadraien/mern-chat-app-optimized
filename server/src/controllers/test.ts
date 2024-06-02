@@ -1,7 +1,7 @@
-import { asyncErrorHandler } from '../middlewares/error';
 import Inventory from '../models/testInventory';
 import Orders from '../models/testOrders';
 import { User } from '../models/user';
+import asyncErrorHandler from '../utils/asyncErrorHandler';
 import { successData } from '../utils/utility-func';
 
 const getUsersData = asyncErrorHandler(async (req, res, next) => {

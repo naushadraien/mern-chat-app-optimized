@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 
-import { asyncErrorHandler } from '../middlewares/error';
 import { User } from '../models/user';
+import asyncErrorHandler from '../utils/asyncErrorHandler';
 import { cookieOptions } from '../utils/cookieOptions';
 import { generateToken } from '../utils/generateToken';
 import { errorMessage, successData } from '../utils/utility-func';

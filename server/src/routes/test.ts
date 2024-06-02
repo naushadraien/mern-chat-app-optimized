@@ -10,14 +10,14 @@ import {
 } from '../controllers/test';
 import { authenticateUser } from '../middlewares/authenticateUser';
 
-const app = Router();
+const router = Router();
 
-app.use(authenticateUser);
-app.get('/', getUsersData);
-app.get('/orders', getOrdersData);
-app.get('/orders-pipelined', getPipelinedOrdersData);
-app.get('/some-extra', getExtraOrderManipulation);
-app.post('/order/new', createNewOrders);
-app.post('/inventory/new', createNewInventory);
+router.use(authenticateUser);
+router.get('/', getUsersData);
+router.get('/orders', getOrdersData);
+router.get('/orders-pipelined', getPipelinedOrdersData);
+router.get('/some-extra', getExtraOrderManipulation);
+router.post('/order/new', createNewOrders);
+router.post('/inventory/new', createNewInventory);
 
-export default app;
+export default router;

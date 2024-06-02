@@ -3,8 +3,8 @@ import jwt, { type JwtPayload } from 'jsonwebtoken';
 import chatConfig from '../config';
 import { User } from '../models/user';
 import { type CustomRequestType, type UserType } from '../Types/types';
+import asyncErrorHandler from '../utils/asyncErrorHandler';
 import { errorMessage } from '../utils/utility-func';
-import { asyncErrorHandler } from './error';
 
 export const authenticateUser = asyncErrorHandler(
   async (req: CustomRequestType<UserType>, res, next) => {
