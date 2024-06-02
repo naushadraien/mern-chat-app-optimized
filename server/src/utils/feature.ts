@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+import { logWithIcon } from './logServerWithIcon';
+
 const connectDB = async (uri: string): Promise<void> => {
   try {
     const connect = await mongoose.connect(uri, {
@@ -7,9 +9,8 @@ const connectDB = async (uri: string): Promise<void> => {
       connectTimeoutMS: 30000,
       socketTimeoutMS: 60000,
     });
-    console.log(`Connected to DB at ${connect.connection.host}`);
-    console.log('\x1b[92m' + '💾 Connected to MongoDB' + '\x1b[0m');
-    console.log('\x1b[91m' + '🔴 Press CTRL-C to stop\n' + '\x1b[0m');
+    logWithIcon('\n💾', '92', `Connected to MongoDB at ${connect.connection.host}`);
+    logWithIcon('🔴', '91', 'Press CTRL-C to stop\n');
   } catch (error) {
     console.log('Error while connecting with DB', error);
     throw error;
