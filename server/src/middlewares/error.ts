@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import chatConfig from '../config';
+import ENVS from '../constants/deploymentStatus';
 import { type ControllerType } from '../Types/types';
 import type ErrorHandler from '../utils/utility-class';
 
@@ -18,16 +19,20 @@ const JWT_ERROR = 'JsonWebTokenError';
 const TOKEN_EXPIRED_ERROR = 'TokenExpiredError';
 const MONGO_SERVER_ERROR = 'MongoServerError';
 const SYNTAX_ERROR = 'SyntaxError';
+const CAST_ERROR = 'CastError';
+const VALIDATION_ERROR = 'ValidationError';
+const NOT_FOUND_ERROR = 'NotFoundError';
+const AUTHENTICATION_ERROR = 'AuthenticationError';
+const RATE_LIMIT_ERROR = 'RateLimitError';
 
 const sendError = (error: ErrorHandler, req: Request, res: Response, _next: NextFunction) => {
-  const NODE_ENV = process.env.NODE_ENV;
-
   const customError = {
     ...error,
     name: error.name,
-    code: error.statusCode,
+    statusCode: error.statusCode,
     message: error.message,
     stack: error.stack,
+    mongoCode: error.code, // Add this line
   };
 
   switch (customError.name) {
@@ -42,11 +47,13 @@ const sendError = (error: ErrorHandler, req: Request, res: Response, _next: Next
       customError.statusCode = StatusCodes.UNAUTHORIZED;
       break;
     case MONGO_SERVER_ERROR:
-      if (customError.code === 11000) {
+      if (customError.mongoCode === 11000) {
         const duplicateField = customError.message
           .split('index: ')[1]
           .split('dup key')[0]
-          .split('_')[0];
+          .split(' ')[0]
+          .slice(0, -1); // Remove the trailing underscore
+
         customError.name = 'Duplicate field';
         customError.message = `Duplicate field ${duplicateField}. Please use another value`;
         customError.statusCode = StatusCodes.BAD_REQUEST;
@@ -58,11 +65,45 @@ const sendError = (error: ErrorHandler, req: Request, res: Response, _next: Next
         customError.statusCode = StatusCodes.BAD_REQUEST;
       }
       break;
+    case CAST_ERROR:
+      customError.name = 'Invalid ID';
+      customError.message = 'The provided ID is not valid.';
+      customError.statusCode = StatusCodes.BAD_REQUEST;
+      break;
+    case VALIDATION_ERROR:
+      customError.name = 'Validation Error';
+      // customError.message = 'Invalid data provided.';
+      customError.statusCode = StatusCodes.BAD_REQUEST;
+      break;
+    case NOT_FOUND_ERROR:
+      customError.name = 'Not Found';
+      customError.message = 'The requested resource could not be found.';
+      customError.statusCode = StatusCodes.NOT_FOUND;
+      break;
+    case AUTHENTICATION_ERROR:
+      customError.name = 'Authentication Error';
+      customError.message = 'You are not authorized to access this resource.';
+      customError.statusCode = StatusCodes.FORBIDDEN;
+      break;
+    case RATE_LIMIT_ERROR:
+      customError.name = 'Rate Limit Exceeded';
+      customError.message = 'Too many requests. Please try again later.';
+      customError.statusCode = StatusCodes.TOO_MANY_REQUESTS;
+      break;
   }
 
   !customError.isOperational &&
     console.error(customError.message, {
-      metadata: { ...customError, ip: req.ip, app: req.app.locals.title },
+      metadata: {
+        ...customError,
+        ip: req.ip,
+        app: req.app.locals.title,
+        method: req.method,
+        url: req.originalUrl,
+        // timestamp: new Date().toISOString(),
+        timestamp: new Date().toLocaleString(),
+        environment: chatConfig.NODE_ENV,
+      },
     });
 
   const errorResponse: ErrorResponse = {
@@ -73,21 +114,15 @@ const sendError = (error: ErrorHandler, req: Request, res: Response, _next: Next
     schemaError: customError.details,
   };
 
-  if (NODE_ENV === chatConfig.ENVS.DEV) {
+  if (chatConfig.NODE_ENV === ENVS.DEV) {
     errorResponse.stack = customError.stack;
   }
 
-  return res.status(error.statusCode || 500).json(errorResponse);
+  return res.status(customError.statusCode || 500).json(errorResponse);
 };
 
 // this is errorHandler middleware function that is called when any error is thrown in the ErrorHandler class by using next(new ErrorHandler('User not found', 404))
 const errorMiddleware = (err: ErrorHandler, req: Request, res: Response, next: NextFunction) => {
-  err.message ||= 'Internal server error';
-  err.statusCode ||= 500;
-  err.details ||= undefined;
-
-  if (err.name === 'CastError') err.message = 'Invalid Id';
-
   sendError(err, req, res, next);
 };
 
