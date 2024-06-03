@@ -5,7 +5,6 @@ import morgan from 'morgan';
 import chatConfig from './config';
 import { errorMiddleware } from './middlewares/error';
 import { mainRouter } from './routes';
-import connectDB from './utils/feature';
 
 const app = express();
 app.locals.version = '1.0.0';
@@ -35,7 +34,4 @@ app.all('*', (req: Request, res: Response, next: NextFunction) => {
 
 app.use(errorMiddleware);
 
-export async function setupApp() {
-  await connectDB(chatConfig.Mongo_URI);
-  return app;
-}
+export default app;
