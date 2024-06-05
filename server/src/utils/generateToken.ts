@@ -9,6 +9,7 @@ const generateToken = (res: Response, userId: string) => {
     expiresIn: '15d',
   });
 
-  return res.cookie('token', token, cookieOptions);
+  res.cookie('token', token, cookieOptions);
+  return token;
 };
 export { generateToken };

@@ -1,5 +1,3 @@
-import bcrypt from 'bcryptjs';
-
 import { User } from '../models/user';
 import asyncErrorHandler from '../utils/asyncErrorHandler';
 import { cookieOptions } from '../utils/cookieOptions';
@@ -36,13 +34,20 @@ const loginUser = asyncErrorHandler(async (req, res, next) => {
     errorMessage(next, 'Invalid email or password', 400);
     return;
   }
-  const isPasswordMatch = await bcrypt.compare(password, existedUser.password);
+
+  const isPasswordMatch = await existedUser.comparePassword(password, existedUser.password);
+
+  // const isPasswordMatch = await bcrypt.compare(password, existedUser.password);
   if (!isPasswordMatch) {
     errorMessage(next, 'Invalid email or password', 400);
     return;
   }
-  generateToken(res, existedUser._id);
-  return successData(res, `Welcome back ${existedUser.name}`, existedUser);
+  const token = generateToken(res, existedUser._id);
+  const data = {
+    token,
+    existedUser,
+  };
+  return successData(res, `Welcome back ${existedUser.name}`, data);
 });
 
 const logOutUser = asyncErrorHandler(async (req, res, next) => {

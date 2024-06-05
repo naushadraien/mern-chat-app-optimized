@@ -8,7 +8,7 @@ import authSchema from '../validationSchema/auth';
 const router = express.Router();
 
 router.get('/logout', logOutUser);
-router.post('/register', singleAvatar, validateData(authSchema.Register), registerUser);
+router.post('/register', singleAvatar, registerUser);
 router.post('/login', validateData(authSchema.Login), loginUser);
 
 export default router;

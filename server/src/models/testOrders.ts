@@ -35,6 +35,7 @@ const ordersSchema = new Schema(
       validate: {
         // this is a custom validator in mongoose
         validator: function (value: number) {
+          // this validator will only work with the create() and save() methods in mongoose but not with update() methods
           return value >= 1 && value <= 100;
         },
         // message: (props: { value: number }) => `${props.value} should be between 1 and 100`,

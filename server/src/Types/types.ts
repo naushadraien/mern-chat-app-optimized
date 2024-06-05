@@ -19,6 +19,7 @@ export interface UserType extends Document {
   };
   createdAt: string;
   updatedAt: string;
+  comparePassword?: (receivedPassword: string, hashedInDBPassword: string) => Promise<boolean>;
 }
 
 export interface cookieOptionsType {
