@@ -5,7 +5,7 @@ import { generateToken } from '../utils/generateToken';
 import { errorMessage, successData } from '../utils/utility-func';
 
 const registerUser = asyncErrorHandler(async (req, res, next) => {
-  const { name, email, password, bio, avatar } = req.body;
+  const { name, email, password, bio, avatar, passwordChangedAt } = req.body;
   const alreadyExistedUser = await User.findOne({ email });
 
   if (alreadyExistedUser) {
@@ -19,6 +19,7 @@ const registerUser = asyncErrorHandler(async (req, res, next) => {
     password,
     bio,
     avatar,
+    passwordChangedAt,
   });
 
   generateToken(res, user._id);

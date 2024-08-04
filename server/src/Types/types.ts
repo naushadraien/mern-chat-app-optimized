@@ -17,10 +17,12 @@ export interface UserType extends Document {
     public_id: string;
     url: string;
   };
+  passwordChangedAt: Date;
   role?: string;
   createdAt: string;
   updatedAt: string;
   comparePassword?: (receivedPassword: string, hashedInDBPassword: string) => Promise<boolean>;
+  isPasswordChanged?: (jwtIssuedTime: number) => Promise<boolean>;
 }
 
 export interface cookieOptionsType {

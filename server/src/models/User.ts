@@ -43,6 +43,7 @@ const userSchema = new Schema(
         required: [true, 'Please provide url'],
       },
     },
+    passwordChangedAt: Date,
   },
   { timestamps: true }
 );
@@ -62,6 +63,14 @@ userSchema.methods.comparePassword = async function (
   hashedInDBPassword: string
 ) {
   return await bcrypt.compare(receivedPassword, hashedInDBPassword);
+};
+
+userSchema.methods.isPasswordChanged = async function (jwtIssuedTime: number) {
+  if (this.passwordChangedAt) {
+    const passwordChangedTimeStamp = this.passwordChangedAt.getTime() / 1000; // divided by 1000 for time in seconds from millisecond
+    return jwtIssuedTime < passwordChangedTimeStamp; // if password changed after the token was issued then return true eg. 1722790867 < 1722988800
+  }
+  return false;
 };
 
 export const User: Model<UserType> = mongoose.models.User || mongoose.model('User', userSchema);
