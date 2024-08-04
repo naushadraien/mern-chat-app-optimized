@@ -14,6 +14,7 @@ const router = Router();
 
 router.use(authenticateUser);
 router.get('/', getUsersData);
+// router.get('/orders', onlyAdmin(['user', 'superAdmin']), getOrdersData);
 router.get('/orders', getOrdersData);
 router.get('/orders-pipelined', getPipelinedOrdersData);
 router.get('/some-extra', getExtraOrderManipulation);

@@ -5,7 +5,7 @@ export type ControllerType = (
   req: Request,
   res: Response,
   next: NextFunction
-) => Promise<void | Response<any, Record<string, any>>>;
+) => Promise<any | Response<any, Record<string, any>>>;
 
 export interface UserType extends Document {
   _id: string;
@@ -17,6 +17,7 @@ export interface UserType extends Document {
     public_id: string;
     url: string;
   };
+  role?: string;
   createdAt: string;
   updatedAt: string;
   comparePassword?: (receivedPassword: string, hashedInDBPassword: string) => Promise<boolean>;
