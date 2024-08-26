@@ -1,5 +1,6 @@
 import cookieParser from 'cookie-parser';
 import express, { type NextFunction, type Request, type Response } from 'express';
+import helmet from 'helmet';
 import morgan from 'morgan';
 
 import chatConfig from './config';
@@ -9,6 +10,9 @@ import { mainRouter } from './routes';
 const app = express();
 app.locals.version = '1.0.0';
 app.locals.title = 'Mern Chat App';
+
+// Use Helmet!
+app.use(helmet());
 
 app.use(morgan(chatConfig.LOGS));
 app.use(express.json({ limit: '50mb' }));

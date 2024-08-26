@@ -22,12 +22,32 @@ const authSchema = {
     // }),
   }),
   Login: z.object({
-    email: z.string({ message: 'email is required' }).email({
-      message: 'The email address you entered is not valid.',
-    }),
-    password: z.string({ message: 'password is required' }).min(4, {
-      message: 'Please enter a password that is at least 4 characters long.',
-    }),
+    email: z
+      .string({
+        required_error: 'email is required',
+        invalid_type_error: 'email should be string',
+      })
+      .email({
+        message: 'The email address you entered is not valid.',
+      }),
+    password: z
+      .string({
+        required_error: 'password is required',
+        invalid_type_error: 'password should be string',
+      })
+      .min(4, {
+        message: 'Please enter a password that is at least 4 characters long.',
+      }),
+  }),
+  ForgotPassword: z.object({
+    email: z
+      .string({
+        invalid_type_error: 'email must be string',
+        required_error: 'email is required field',
+      })
+      .email({
+        message: 'The email address you entered is not valid.',
+      }),
   }),
 };
 

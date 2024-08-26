@@ -64,4 +64,11 @@ const logOutUser = asyncErrorHandler(async (req, res, next) => {
     });
 });
 
-export { loginUser, logOutUser, registerUser };
+const forgotPassword = asyncErrorHandler(async (req, res, next) => {
+  console.log('i am from forgot password controller');
+});
+const resetPassword = asyncErrorHandler(async (req, res, next) => {
+  console.log('i am from forgot password controller');
+});
+
+export { forgotPassword, loginUser, logOutUser, registerUser, resetPassword };
