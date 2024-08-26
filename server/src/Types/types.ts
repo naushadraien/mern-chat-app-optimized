@@ -7,6 +7,11 @@ export type ControllerType = (
   next: NextFunction
 ) => Promise<any | Response<any, Record<string, any>>>;
 
+export enum UserRole {
+  USER = 'user',
+  ADMIN = 'admin',
+}
+
 export interface UserType extends Document {
   _id: string;
   name: string;
@@ -18,7 +23,7 @@ export interface UserType extends Document {
     url: string;
   };
   passwordChangedAt: Date;
-  role?: string;
+  role?: UserRole;
   createdAt: string;
   updatedAt: string;
   comparePassword?: (receivedPassword: string, hashedInDBPassword: string) => Promise<boolean>;

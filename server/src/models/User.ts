@@ -43,6 +43,11 @@ const userSchema = new Schema(
         required: [true, 'Please provide url'],
       },
     },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
     passwordChangedAt: Date,
   },
   { timestamps: true }

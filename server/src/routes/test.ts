@@ -9,12 +9,14 @@ import {
   getUsersData,
 } from '../controllers/test';
 import { authenticateUser } from '../middlewares/authenticateUser';
+import { UserRole } from '../Types/types';
+import { onlyAdmin } from '../utils/onlyAdmin';
 
 const router = Router();
 
 router.use(authenticateUser);
 router.get('/', getUsersData);
-// router.get('/orders', onlyAdmin(['user', 'superAdmin']), getOrdersData);
+router.get('/orders', onlyAdmin([UserRole.USER, UserRole.ADMIN]), getOrdersData);
 router.get('/orders', getOrdersData);
 router.get('/orders-pipelined', getPipelinedOrdersData);
 router.get('/some-extra', getExtraOrderManipulation);
