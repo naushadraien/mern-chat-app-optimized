@@ -65,7 +65,22 @@ const logOutUser = asyncErrorHandler(async (req, res, next) => {
 });
 
 const forgotPassword = asyncErrorHandler(async (req, res, next) => {
-  console.log('i am from forgot password controller');
+  // get user based on posted email
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    errorMessage(next, 'User with the provided email not found', 404);
+    return;
+  }
+
+  const resetToken = await user.generatePasswordResetToken();
+  // if we not use save in the generatePasswordResetToken instance method in the user schema then we use the save method here to save the token in the db
+  // await user.save({ validateBeforeSave: false });
+
+  console.log('resetToken', resetToken);
+
+  // generate a random reset token
+  // send the token back to the user email
 });
 const resetPassword = asyncErrorHandler(async (req, res, next) => {
   console.log('i am from forgot password controller');

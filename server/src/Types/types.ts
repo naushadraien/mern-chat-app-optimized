@@ -22,12 +22,15 @@ export interface UserType extends Document {
     public_id: string;
     url: string;
   };
-  passwordChangedAt: Date;
+  passwordChangedAt?: Date;
+  passwordResetToken?: string;
+  passwordResetExpires?: Date;
   role?: UserRole;
   createdAt: string;
   updatedAt: string;
   comparePassword?: (receivedPassword: string, hashedInDBPassword: string) => Promise<boolean>;
   isPasswordChanged?: (jwtIssuedTime: number) => Promise<boolean>;
+  generatePasswordResetToken?: () => Promise<string>;
 }
 
 export interface cookieOptionsType {
