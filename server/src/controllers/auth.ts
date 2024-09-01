@@ -1,7 +1,9 @@
 import { User } from '../models/user';
+import { baseRouter } from '../routes';
 import asyncErrorHandler from '../utils/asyncErrorHandler';
 import { cookieOptions } from '../utils/cookieOptions';
 import { generateToken } from '../utils/generateToken';
+import { sendTemplateEmail } from '../utils/sendEmail';
 import { errorMessage, successData } from '../utils/utility-func';
 
 const registerUser = asyncErrorHandler(async (req, res, next) => {
@@ -73,15 +75,30 @@ const forgotPassword = asyncErrorHandler(async (req, res, next) => {
     return;
   }
 
+  // generate a random reset token
   const resetToken = await user.generatePasswordResetToken();
   // if we not use save in the generatePasswordResetToken instance method in the user schema then we use the save method here to save the token in the db
   // await user.save({ validateBeforeSave: false });
 
-  console.log('resetToken', resetToken);
+  // Construct the reset URL
+  const resetURL = `${req.protocol}://${req.get('host')}/resetPassword/${resetToken}`;
+  // const resetURL = `${req.protocol}://${req.get('host')}/resetPassword?email=${user.email}&token=${resetToken}`;
 
-  // generate a random reset token
   // send the token back to the user email
+  try {
+    await sendTemplateEmail('bar@example.com', 'Password Reset', 'passwordReset', {
+      name: `Hello ${user.name}`,
+      resetLink: resetURL,
+    });
+    successData(res, 'Password reset link send to the user email', undefined);
+  } catch (error) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    errorMessage(next, 'Failed to send email. Please try again later', 500);
+  }
 });
+
 const resetPassword = asyncErrorHandler(async (req, res, next) => {
   console.log('i am from forgot password controller');
 });

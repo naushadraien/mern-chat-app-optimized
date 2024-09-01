@@ -4,7 +4,7 @@ import authRouter from './auth';
 import chatRouter from './chat';
 import testRouter from './test';
 
-const baseRouter = '/api/v1';
+export const baseRouter = '/api/v1';
 
 const mainRouter = (app: Application) => {
   app.use(`${baseRouter}/user`, authRouter);
