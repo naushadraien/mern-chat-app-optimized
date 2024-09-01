@@ -49,23 +49,28 @@ async function sendTemplateEmail(
   templateName: string,
   templateData: Record<string, any>
 ) {
-  const templatePath = path.join(
-    __dirname,
-    '..', // go to server folder
-    '..', // go to src folder
-    'src', // go to src folder
-    'templates', // go to templates folder
-    `${templateName}.hbs`
-  );
-  const templateSource = fs.readFileSync(templatePath, 'utf8');
-  const compiledTemplate = handlebars.compile(templateSource);
-  const html = compiledTemplate(templateData);
+  try {
+    const templatePath = path.join(
+      __dirname,
+      '..', // go to server folder
+      '..', // go to src folder
+      'src', // go to src folder
+      'templates', // go to templates folder
+      `${templateName}.hbs`
+    );
+    const templateSource = fs.readFileSync(templatePath, 'utf8');
+    const compiledTemplate = handlebars.compile(templateSource);
+    const html = compiledTemplate(templateData);
 
-  return await sendEmail({
-    to,
-    subject,
-    html,
-  });
+    return await sendEmail({
+      to,
+      subject,
+      html,
+    });
+  } catch (error) {
+    console.error('Error sending template email:', error);
+    throw error;
+  }
 }
 
 export { sendEmail, sendTemplateEmail };
