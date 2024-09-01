@@ -173,7 +173,7 @@ const updatePassword = asyncErrorHandler(
     );
 
     if (!isCorrectPassword) {
-      errorMessage(next, 'Password you provided is wrong', StatusCodes.BAD_REQUEST);
+      errorMessage(next, 'Password you provided is wrong', StatusCodes.UNAUTHORIZED);
       return;
     }
 
