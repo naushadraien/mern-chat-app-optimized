@@ -73,7 +73,7 @@ userSchema.methods.comparePassword = async function (
   return await bcrypt.compare(receivedPassword, hashedInDBPassword);
 };
 
-userSchema.methods.isPasswordChanged = async function (jwtIssuedTime: number) {
+userSchema.methods.isPasswordChanged = async function (jwtIssuedTime: number): Promise<boolean> {
   if (this.passwordChangedAt) {
     const passwordChangedTimeStamp = this.passwordChangedAt.getTime() / 1000; // divided by 1000 for time in seconds from millisecond
     return jwtIssuedTime < passwordChangedTimeStamp; // if password changed after the token was issued then return true eg. 1722790867 < 1722988800

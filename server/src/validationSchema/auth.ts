@@ -49,6 +49,20 @@ const authSchema = {
         message: 'The email address you entered is not valid.',
       }),
   }),
+  ResetPassword: z.object({
+    email: z
+      .string({
+        invalid_type_error: 'email must be string',
+        required_error: 'email is required field',
+      })
+      .email({
+        message: 'The email address you entered is not valid.',
+      }),
+    password: z.string({
+      invalid_type_error: 'password should be string',
+      required_error: 'password is required',
+    }),
+  }),
 };
 
 // export const userRegistrationSchema = z.object({

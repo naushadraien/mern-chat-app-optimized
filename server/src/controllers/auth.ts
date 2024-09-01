@@ -1,5 +1,7 @@
+import crypto from 'crypto';
+import { type Request } from 'express';
+
 import { User } from '../models/user';
-import { baseRouter } from '../routes';
 import asyncErrorHandler from '../utils/asyncErrorHandler';
 import { cookieOptions } from '../utils/cookieOptions';
 import { generateToken } from '../utils/generateToken';
@@ -99,8 +101,60 @@ const forgotPassword = asyncErrorHandler(async (req, res, next) => {
   }
 });
 
-const resetPassword = asyncErrorHandler(async (req, res, next) => {
-  console.log('i am from forgot password controller');
-});
+// Request extending types
+// Request Parameters: The first generic parameter.
+// Response Body: The second generic parameter.
+// Request Body: The third generic parameter.
+// Request Query: The fourth generic parameter.
+
+// Define types for request parameters, query, and body
+// interface ResetPasswordParams {
+//   token: string;
+// }
+
+// interface ResetPasswordQuery {
+//   search: string;
+// }
+
+// interface ResetPasswordBody {
+//   newPassword: string;
+// }
+
+const resetPassword = asyncErrorHandler(
+  async (
+    req: Request<{ token: string }, undefined, { password: string }, undefined>,
+    // req: Request<ResetPasswordParams, {}, ResetPasswordBody, ResetPasswordQuery>,
+    res,
+    next
+  ) => {
+    const token = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+    // const existedUser = await User.findOne({ email }, '+password');
+    const existedUser = await User.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: {
+        $gt: new Date(),
+      },
+    });
+
+    if (!existedUser) {
+      errorMessage(next, 'Token is invalid or has expired', 400);
+      return;
+    }
+
+    existedUser.password = req.body.password;
+    existedUser.passwordResetToken = undefined;
+    existedUser.passwordResetExpires = undefined;
+    existedUser.passwordChangedAt = new Date();
+
+    await existedUser.save();
+    const loginToken = generateToken(res, existedUser._id);
+    successData(
+      res,
+      'Your password has been successfully reset. You can now log in with your new password.',
+      { token: loginToken }
+    );
+  }
+);
 
 export { forgotPassword, loginUser, logOutUser, registerUser, resetPassword };

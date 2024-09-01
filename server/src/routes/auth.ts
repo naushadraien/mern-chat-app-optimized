@@ -17,6 +17,6 @@ router.get('/logout', logOutUser);
 router.post('/register', singleAvatar, registerUser);
 router.post('/login', validateData(authSchema.Login), loginUser);
 router.post('/forgot-password', validateData(authSchema.ForgotPassword), forgotPassword);
-router.patch('/reset-password/:token', resetPassword);
+router.patch('/reset-password/:token', validateData(authSchema.ResetPassword), resetPassword);
 
 export default router;
