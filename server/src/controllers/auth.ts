@@ -1,7 +1,9 @@
 import crypto from 'crypto';
 import { type Request } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
 import { User } from '../models/user';
+import { type CustomRequestType, type UserType } from '../Types/types';
 import asyncErrorHandler from '../utils/asyncErrorHandler';
 import { cookieOptions } from '../utils/cookieOptions';
 import { generateToken } from '../utils/generateToken';
@@ -157,4 +159,34 @@ const resetPassword = asyncErrorHandler(
   }
 );
 
-export { forgotPassword, loginUser, logOutUser, registerUser, resetPassword };
+const updatePassword = asyncErrorHandler(
+  async (req: CustomRequestType<{ currentPassword: string; newPassword: string }>, res, next) => {
+    const existingUser = await User.findById(req.user._id).select('+password');
+    if (!existingUser) {
+      errorMessage(next, 'User not found', StatusCodes.NOT_FOUND);
+      return;
+    }
+
+    const isCorrectPassword = await existingUser.comparePassword(
+      req.body.currentPassword,
+      existingUser.password
+    );
+
+    if (!isCorrectPassword) {
+      errorMessage(next, 'Password you provided is wrong', StatusCodes.BAD_REQUEST);
+      return;
+    }
+
+    existingUser.password = req.body.newPassword;
+    existingUser.passwordChangedAt = new Date();
+    await existingUser.save();
+
+    const token = generateToken(res, existingUser._id);
+
+    successData(res, 'Password changed successfully', {
+      token,
+    });
+  }
+);
+
+export { forgotPassword, loginUser, logOutUser, registerUser, resetPassword, updatePassword };

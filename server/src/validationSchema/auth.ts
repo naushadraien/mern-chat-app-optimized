@@ -50,15 +50,25 @@ const authSchema = {
       }),
   }),
   ResetPassword: z.object({
-    email: z
-      .string({
-        invalid_type_error: 'email must be string',
-        required_error: 'email is required field',
-      })
-      .email({
-        message: 'The email address you entered is not valid.',
-      }),
+    // email: z
+    //   .string({
+    //     invalid_type_error: 'email must be string',
+    //     required_error: 'email is required field',
+    //   })
+    //   .email({
+    //     message: 'The email address you entered is not valid.',
+    //   }),
     password: z.string({
+      invalid_type_error: 'password should be string',
+      required_error: 'password is required',
+    }),
+  }),
+  UpdatePassword: z.object({
+    currentPassword: z.string({
+      invalid_type_error: 'password should be string',
+      required_error: 'password is required',
+    }),
+    newPassword: z.string({
       invalid_type_error: 'password should be string',
       required_error: 'password is required',
     }),
