@@ -1,139 +1,147 @@
 import Inventory from '../models/testInventory';
 import Orders from '../models/testOrders';
 import { User } from '../models/user';
+import Apifeatures from '../utils/apiFeatures';
 import asyncErrorHandler from '../utils/asyncErrorHandler';
 import { successData } from '../utils/utility-func';
 
 const getUsersData = asyncErrorHandler(async (req, res, next) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-  const users = await User.aggregate([
-    // Using aggregate pipeline for getting data in a desired form from the database
-    {
-      $match: {
-        // Filtering data by name
-        name: 'Rehan',
-      },
-    },
-    {
-      $group: {
-        // Grouping data by email and getting data in object form instead of array form
-        _id: '$email',
-        userBio: {
-          $first: '$bio',
-        },
-        userId: {
-          $first: '$_id',
-        },
-        usersCount: {
-          $sum: 1,
-        },
-        bioArray: {
-          $push: '$bio',
-        },
-        userEmail: {
-          $first: '$email',
-        },
-        avatar: {
-          $first: '$avatar.url',
-        },
-        name: {
-          $first: '$name',
-        },
-      },
-    },
-    {
-      $unwind: '$bioArray', // $unwind used for getting data in object form instead of array form like bioArray: ['bio1', 'bio2'] to bioArray: 'bio1' and bioArray: 'bio2'
-    },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    },
-    // {
-    //   $facet: {
-    //     // Using $facet to get multiple outputs from a single stage of the pipeline and then merging them into a single output document
-    //     data: [{ $skip: skip }, { $limit: limit }],
-    //     totalCount: [{ $count: 'count' }],
-    //   },
-    // },
-    {
-      $project: {
-        // Projecting data to get only required fields from the database and renaming fields as well if needed. Here 0 means excluding the field and 1 means including the field
-        _id: 0,
-      },
-    },
-  ]);
+  console.log('request', req.query);
 
-  //   // for seaching of user
-  //   const userName = req.query.userName;
-  //   const pipeline = [];
+  const features = new Apifeatures(User.find(), req.query).filter().sort().limitFields().paginate();
+  const users = await features.query;
 
-  //   if (typeof userName === 'string') {
-  //     pipeline.push({
-  //       $match: {
-  //         userName: {
-  //           $regex: new RegExp(userName, 'i'), // Case-insensitive search
-  //         },
+  console.log('users', users);
+
+  // const page = Number(req.query.page) || 1;
+  // const limit = Number(req.query.limit) || 10;
+  // const skip = (page - 1) * limit;
+  // const users = await User.aggregate([
+  //   // Using aggregate pipeline for getting data in a desired form from the database
+  //   {
+  //     $match: {
+  //       // Filtering data by name
+  //       name: 'Rehan',
+  //     },
+  //   },
+  //   {
+  //     $group: {
+  //       // Grouping data by email and getting data in object form instead of array form
+  //       _id: '$email',
+  //       userBio: {
+  //         $first: '$bio',
   //       },
-  //     });
-  //   }
-
-  //   pipeline.push(
-  //     {
-  //       $group: {
-  //         // Grouping data by email and getting data in object form instead of array form
-  //         _id: '$email',
-  //         userBio: {
-  //           $first: '$bio',
-  //         },
-  //         userId: {
-  //           $first: '$_id',
-  //         },
-  //         usersCount: {
-  //           $sum: 1,
-  //         },
-  //         bioArray: {
-  //           $push: '$bio',
-  //         },
-  //         userEmail: {
-  //           $first: '$email',
-  //         },
-  //         avatar: {
-  //           $first: '$avatar.url',
-  //         },
-  //         name: {
-  //           $first: '$name',
-  //         },
+  //       userId: {
+  //         $first: '$_id',
+  //       },
+  //       usersCount: {
+  //         $sum: 1,
+  //       },
+  //       bioArray: {
+  //         $push: '$bio',
+  //       },
+  //       userEmail: {
+  //         $first: '$email',
+  //       },
+  //       avatar: {
+  //         $first: '$avatar.url',
+  //       },
+  //       name: {
+  //         $first: '$name',
   //       },
   //     },
-  //     {
-  //       $unwind: '$bioArray', // $unwind used for getting data in object form instead of array form like bioArray: ['bio1', 'bio2'] to bioArray: 'bio1' and bioArray: 'bio2'
+  //   },
+  //   {
+  //     $unwind: '$bioArray', // $unwind used for getting data in object form instead of array form like bioArray: ['bio1', 'bio2'] to bioArray: 'bio1' and bioArray: 'bio2'
+  //   },
+  //   {
+  //     $skip: skip,
+  //   },
+  //   {
+  //     $limit: limit,
+  //   },
+  //   // {
+  //   //   $facet: {
+  //   //     // Using $facet to get multiple outputs from a single stage of the pipeline and then merging them into a single output document
+  //   //     data: [{ $skip: skip }, { $limit: limit }],
+  //   //     totalCount: [{ $count: 'count' }],
+  //   //   },
+  //   // },
+  //   {
+  //     $project: {
+  //       // Projecting data to get only required fields from the database and renaming fields as well if needed. Here 0 means excluding the field and 1 means including the field
+  //       _id: 0,
   //     },
-  //     {
-  //       $skip: skip,
-  //     },
-  //     {
-  //       $limit: limit,
-  //     },
-  //     // {
-  //     //   $facet: {
-  //     //     // Using $facet to get multiple outputs from a single stage of the pipeline and then merging them into a single output document
-  //     //     data: [{ $skip: skip }, { $limit: limit }],
-  //     //     totalCount: [{ $count: 'count' }],
-  //     //   },
-  //     // },
-  //     {
-  //       $project: {
-  //         // Projecting data to get only required fields from the database and renaming fields as well if needed. Here 0 means excluding the field and 1 means including the field
-  //         _id: 0,
-  //       },
-  //     }
-  //   );
+  //   },
+  // ]);
 
-  //   const users = await User.aggregate(pipeline);
+  // //   // for seaching of user
+  // //   const userName = req.query.userName;
+  // //   const pipeline = [];
+
+  // //   if (typeof userName === 'string') {
+  // //     pipeline.push({
+  // //       $match: {
+  // //         userName: {
+  // //           $regex: new RegExp(userName, 'i'), // Case-insensitive search
+  // //         },
+  // //       },
+  // //     });
+  // //   }
+
+  // //   pipeline.push(
+  // //     {
+  // //       $group: {
+  // //         // Grouping data by email and getting data in object form instead of array form
+  // //         _id: '$email',
+  // //         userBio: {
+  // //           $first: '$bio',
+  // //         },
+  // //         userId: {
+  // //           $first: '$_id',
+  // //         },
+  // //         usersCount: {
+  // //           $sum: 1,
+  // //         },
+  // //         bioArray: {
+  // //           $push: '$bio',
+  // //         },
+  // //         userEmail: {
+  // //           $first: '$email',
+  // //         },
+  // //         avatar: {
+  // //           $first: '$avatar.url',
+  // //         },
+  // //         name: {
+  // //           $first: '$name',
+  // //         },
+  // //       },
+  // //     },
+  // //     {
+  // //       $unwind: '$bioArray', // $unwind used for getting data in object form instead of array form like bioArray: ['bio1', 'bio2'] to bioArray: 'bio1' and bioArray: 'bio2'
+  // //     },
+  // //     {
+  // //       $skip: skip,
+  // //     },
+  // //     {
+  // //       $limit: limit,
+  // //     },
+  // //     // {
+  // //     //   $facet: {
+  // //     //     // Using $facet to get multiple outputs from a single stage of the pipeline and then merging them into a single output document
+  // //     //     data: [{ $skip: skip }, { $limit: limit }],
+  // //     //     totalCount: [{ $count: 'count' }],
+  // //     //   },
+  // //     // },
+  // //     {
+  // //       $project: {
+  // //         // Projecting data to get only required fields from the database and renaming fields as well if needed. Here 0 means excluding the field and 1 means including the field
+  // //         _id: 0,
+  // //       },
+  // //     }
+  // //   );
+
+  // //   const users = await User.aggregate(pipeline);
 
   return successData(res, '', users);
 });
